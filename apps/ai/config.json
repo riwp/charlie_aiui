@@ -2,8 +2,8 @@
     "APP_TITLE": "AI Home",
     "INDEX_TITLE": "AI Home",
     "NAV_LINKS": [
-        {"name": "AI Summarization", "url": "/ai_ui/page/ai_summarization"},
-        {"name": "Stored Files", "url": "/ai_ui/page/ai_savedfiles"}
+        {"name": "AI Summarization", "url": "/ai/page/ai_summarization"},
+        {"name": "Stored Files", "url": "/ai/page/ai_savedfiles"}
     ],
     "MODULE_PAGES": {
         "ai_summarization": {

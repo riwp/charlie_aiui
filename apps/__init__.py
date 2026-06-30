@@ -23,15 +23,7 @@ def create_app():
             
         module_name = f"apps.{url_route}"
         
-        # --- EXPLICIT VARIABLE MAPPINGS FOR ARCHITECTURE EXCEPTIONS ---
-        if url_route == "boxing":
-            blueprint_var_name = "boxing_blueprint"
-        elif url_route == "ai_ui":
-            blueprint_var_name = "ai_blueprint"
-        elif url_route == "dance":
-            blueprint_var_name = "dance_blueprint"
-        else:
-            blueprint_var_name = f"{url_route}_blueprint"
+        blueprint_var_name = f"{url_route}_blueprint"
         
         try:
             imported_module = importlib.import_module(module_name)

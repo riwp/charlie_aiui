@@ -6,6 +6,14 @@ import glob
 import subprocess
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for
 
+# --- MASTER ROUTING CONFIGURATION ---
+#URL_PREFIX = "ai"  # Change this single variable to change paths, config loads, and routing keys
+
+# --- MASTER ROUTING CONFIGURATION ---
+# Dynamically extracts the current folder name (e.g., "ai") to manage paths, config loads, and routes
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+URL_PREFIX = os.path.basename(CURRENT_DIR)
+
 # --- Core Infrastructure Integrations ---
 from apps.common.config import load_app_json_config
 from apps.common.lists import handle_generic_list
@@ -13,8 +21,8 @@ from apps.common.lists import handle_generic_list
 # --- Custom Engine Heavy Workers ---
 from apps.common import gemini_bot, fetch_html
 
-# Instantiate blueprint with absolute workspace prefix mapping
-ai_blueprint = Blueprint('ai_blueprint', __name__, url_prefix='/ai_ui')
+# Instantiate blueprint with absolute workspace prefix mapping safely wrapped with a leading slash
+ai_blueprint = Blueprint('ai_blueprint', __name__, url_prefix=f"/{URL_PREFIX}")
 
 # --- CONFIGURATION CONSTANTS & DIRECTORIES ---
 FILE_CATEGORIES = {
@@ -25,7 +33,7 @@ FILE_CATEGORIES = {
 TEMP_DIRECTORY = "TEMP_DIRECTORY"
 PROMPT_PATH = "prompts"
 
-# FIX: Keep paths completely localized directly inside apps/ai_ui/
+# FIX: Keep paths completely localized directly inside apps/ folder structure dynamically
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 SAVED_OUTPUTS = os.path.join(CURRENT_DIR, "saved_outputs")
 
@@ -40,7 +48,7 @@ for category in FILE_CATEGORIES:
 # --- CONTEXT ISOLATION PROCESSOR ---
 @ai_blueprint.context_processor
 def inject_ai_context():
-    cfg = load_app_json_config("ai_ui")
+    cfg = load_app_json_config(URL_PREFIX)
     return dict(nav_links=cfg.get("NAV_LINKS", []), app_title=cfg.get("APP_TITLE"))
 
 
@@ -89,10 +97,10 @@ def get_prompt_text_md(filename):
 # --- CORE STRUCTURAL ROUTING WORKSPACE ---
 @ai_blueprint.route('/')
 def home():
-    return redirect(url_for('ai_blueprint.generic_list_view', module_key='ai_summarization'))
+    return redirect(url_for('ai_blueprint.generic_list_view', module_key=f'{URL_PREFIX}_summarization'))
 
 # FIX: Map nested file lists to folder items before parsing payload downstream arrays
-@ai_blueprint.route('/page/ai_savedfiles')
+@ai_blueprint.route(f'/page/{URL_PREFIX}_savedfiles')
 def ai_savedfiles():
     categories = sorted(list(FILE_CATEGORIES))
     
@@ -104,24 +112,24 @@ def ai_savedfiles():
         else:
             folder_manifest[category] = []
             
-    return render_template("ai_savedfiles.html", categories=categories, folder_manifest=folder_manifest)
+    return render_template(f"{URL_PREFIX}_savedfiles.html", categories=categories, folder_manifest=folder_manifest)
 
 @ai_blueprint.route('/explorer')
 def ai_explorer():
     category = request.args.get('category', '').strip().lower()
     path = os.path.join(SAVED_OUTPUTS, category)
     files = sorted(os.listdir(path)) if os.path.exists(path) else []
-    return render_template("ai_explorer.html", category=category, files=files)
+    return render_template(f"{URL_PREFIX}_explorer.html", category=category, files=files)
 
 @ai_blueprint.route('/page/<module_key>', methods=['GET', 'POST'])
 def generic_list_view(module_key):
-    if module_key == "ai_savedfiles": 
+    if module_key == f"{URL_PREFIX}_savedfiles": 
         return redirect(url_for('ai_blueprint.ai_savedfiles'))
         
-    if module_key == "ai_explorer": 
+    if module_key == f"{URL_PREFIX}_explorer": 
         return redirect(url_for('ai_blueprint.ai_explorer', category=request.args.get('category', '')))
     
-    cfg = load_app_json_config("ai_ui")
+    cfg = load_app_json_config(URL_PREFIX)
     conf = cfg.get("MODULE_PAGES", {}).get(module_key, {})
     
     patterns = []
@@ -132,8 +140,8 @@ def generic_list_view(module_key):
         
     categories = sorted(list(FILE_CATEGORIES))
     
-    if module_key == "ai_summarization":
-        return render_template("ai_summarization.html", conf=conf, patterns=patterns, default_pattern="summarize", categories=categories)
+    if module_key == f"{URL_PREFIX}_summarization":
+        return render_template(f"{URL_PREFIX}_summarization.html", conf=conf, patterns=patterns, default_pattern="summarize", categories=categories)
         
     return handle_generic_list(module_key, conf, 'ai_blueprint.generic_list_view')
 

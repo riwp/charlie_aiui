@@ -6,7 +6,7 @@
         {"name": "Recipes", "url": "/recipe"},
         {"name": "Boxing", "url": "/boxing"},
         {"name": "Stretching", "url": "/stretching"},
-        {"name": "AI", "url": "/ai_ui"},
+        {"name": "AI", "url": "/ai"}, 
         {"name": "Dance", "url": "/dance"}
     ],
     "DASHBOARD_CARDS": [
@@ -31,7 +31,7 @@
         {
             "title": "⚡ AI Workspace", 
             "description": "Execute prompts, summarize content, and save/search summaries.", 
-            "url": "/ai_ui", 
+            "url": "/ai", 
             "color": "dark"
         },
         {
