@@ -1,0 +1,26 @@
+[
+    {
+        "id": "21bc7429-7a83-4377-a609-82c9a602b6a2",
+        "name": "Workout Current Drills",
+        "description": "1) Boxing nodes 2) Striking Flow Drill 3) Boxing Combos",
+        "drills": [
+            "769da891-95c5-43ea-831e-450f3cd820bd",
+            "7b09c2ef-ffc3-4d2b-a8cf-8924bce6e7bd",
+            "9bca8cb2-2c6f-45fa-bb1b-ebca1bfd0d7e",
+            "fba7bc25-cc7b-4bb8-bf8c-3ca7bfdaea7c",
+            "04e0ad11-df00-4dc5-9a39-0ced3744d1c1",
+            "68bfa67e-aa18-4f79-bd9b-d0e021174e9d",
+            "edb0a61e-92ad-4d43-982d-5873cef3a6fa"
+        ],
+        "is_video": false
+    },
+    {
+        "id": "08722eb8-4347-4fd3-a0ce-7e8cbaca4cbe",
+        "name": "Fundamentals",
+        "description": "Grouping fundamental drills",
+        "drills": [
+            "e44d320b-0487-4b72-a745-f938f323b6b1"
+        ],
+        "is_video": false
+    }
+]

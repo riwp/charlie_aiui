@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block title %}{{ conf.title if conf.title else app_title }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-2">
+    <div>
+        <h1 class="fw-bold m-0 text-dark h4 d-flex align-items-center gap-2">
+            <span class="badge bg-{{ accent_color if accent_color else 'dark' }} p-1 rounded-3" style="width: 10px; height: 20px; display: inline-block;"></span>
+            {{ conf.title if conf.title else app_title }}
+        </h1>
+        <p class="text-muted m-0 small mt-1" style="font-size: 0.8rem;">{{ conf.description if conf.description else 'Select a processing pattern framework, provide target sources, and generate logs.' }}</p>
+    </div>
+</div>
+
+<div class="row g-3 match-height-row">
+    
+    <div class="col-12 col-lg-6 d-flex flex-column">
+        <div class="card border-0 shadow-sm bg-white p-3 rounded-3 flex-grow-1 d-flex flex-column justify-content-between">
+            <div class="d-flex flex-column gap-2 flex-grow-1">
+                
+                <div>
+                    <label class="form-label small fw-semibold text-secondary mb-1" style="font-size: 0.78rem;">Contextual Prompt</label>
+                    <select id="pattern_select" class="form-select form-select-sm border bg-white shadow-sm rounded-2">
+                        {% for pattern in patterns %}
+                        <option value="{{ pattern }}" {% if pattern == '1_summarization expert' or (not '1_summarization expert' in patterns and pattern == default_pattern) %}selected{% endif %}>{{ pattern }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-flex flex-column flex-grow-1 min-textarea-wrapper">
+                    <label class="form-label small fw-semibold text-secondary mb-1" style="font-size: 0.78rem;">Text Context or URL</label>
+                    <textarea id="input_text" 
+                              class="form-control border bg-white rounded-2 small flex-grow-1 workspace-textarea" 
+                              style="min-height: 240px; font-size: 0.85rem; line-height: 1.4;" 
+                              placeholder="{{ input_placeholder if input_placeholder else 'Enter text or absolute URLs here...' }}" 
+                              autocomplete="off"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 pt-1">
+                    <button id="fabric_button" onclick="getFullResponse()" class="btn btn-{{ accent_color if accent_color else 'dark' }} btn-sm fw-bold text-white px-4 flex-grow-1 py-2 rounded-2 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        <span>⚡ Run    </span>
+                    </button>
+                    <button onclick="clearFields()" class="btn btn-light btn-sm border px-3 py-2 rounded-2 text-secondary" title="Reset Field States">⟳ Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6 d-flex flex-column">
+        <div class="card border-0 shadow-sm bg-white p-3 rounded-3 flex-grow-1 d-flex flex-column justify-content-between">
+            <div class="d-flex flex-column gap-2 h-100 flex-grow-1">
+                
+                <div class="d-flex flex-column flex-grow-1 min-textarea-wrapper">
+                    <label class="form-label small fw-semibold text-secondary mb-1" style="font-size: 0.78rem;">Execution Output</label>
+                    <textarea id="responseBox" 
+                              class="form-control border bg-light text-dark rounded-2 small flex-grow-1 workspace-textarea" 
+                              style="min-height: 240px; font-family: var(--bs-font-monospace); font-size: 0.82rem;" 
+                              placeholder="{{ output_placeholder if output_placeholder else 'Results will print here...' }}" 
+                              readonly></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center bg-light border rounded px-3 py-1.5 small text-muted">
+                    <div id="status_update" class="fw-semibold text-secondary text-truncate me-2" style="font-size: 0.75rem;">
+                        <span class="badge bg-secondary text-white me-1 fw-medium" style="font-size: 0.68rem;">Status</span> Idle
+                    </div>
+                    <div id="timer" class="font-monospace fw-bold flex-shrink-0" style="font-size: 0.75rem;">Time: 0.00s</div>
+                </div>
+
+                <div class="bg-light rounded p-2 border">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-sm-4">
+                            <label class="form-label small fw-semibold text-secondary mb-1" style="font-size: 0.72rem;">Storage Category</label>
+                            <select id="categoryDropdown" required class="form-select form-select-sm bg-white border text-capitalize" style="font-size: 0.78rem;">
+                                <option value="" disabled selected>Choose Directory...</option>
+                                {% for categoryname in categories %}
+                                <option value="{{ categoryname }}">{{ categoryname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-sm-4">
+                            <label class="form-label small fw-semibold text-secondary mb-1" style="font-size: 0.72rem;">Custom Target Filename</label>
+                            <input id="filename" type="text" placeholder="e.g. notes_summary" autocomplete="off" class="form-control form-control-sm bg-white border" style="font-size: 0.78rem;"/>
+                        </div>
+
+                        <div class="col-12 col-sm-4">
+                            <button onclick="saveResponse()" class="btn btn-success btn-sm w-100 rounded-2 fw-bold py-2 shadow-sm d-flex align-items-center justify-content-center gap-1" style="font-size: 0.78rem;">
+                                <span>💾 Commit Output</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .workspace-textarea {
+        resize: none;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .workspace-textarea:focus, .form-select:focus, input[type="text"]:focus {
+        border-color: #ced4da !important;
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.04) !important;
+        outline: 0;
+    }
+    .min-textarea-wrapper {
+        position: relative;
+    }
+    @media (min-width: 992px) {
+        .match-height-row {
+            display: flex;
+            align-items: stretch;
+        }
+        .match-height-row > div {
+            display: flex;
+        }
+    }
+</style>
+
+<script>
+    let timerInterval = null;
+    let startTime = null;
+
+    function runTimer() {
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            const delta = (Date.now() - startTime) / 1000;
+            document.getElementById('timer').innerText = `Time: ${delta.toFixed(2)}s`;
+        }, 10);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+    }
+
+    function clearFields() {
+        document.getElementById('input_text').value = '';
+        document.getElementById('responseBox').value = '';
+        document.getElementById('filename').value = '';
+        document.getElementById('status_update').innerHTML = '<span class="badge bg-secondary text-white me-1 fw-medium" style="font-size: 0.68rem;">Status</span> Idle';
+        document.getElementById('timer').innerText = 'Time: 0.00s';
+        stopTimer();
+    }
+
+    async function getFullResponse() {
+        const promptText = document.getElementById('input_text').value.trim();
+        const selectedPattern = document.getElementById('pattern_select').value;
+        const responseBox = document.getElementById('responseBox');
+        const statusUpdate = document.getElementById('status_update');
+        const runButton = document.getElementById('fabric_button');
+
+        if (!promptText) {
+            alert('Please provide an input context source text payload or target address URL path before triggering generation.');
+            return;
+        }
+
+        runButton.disabled = true;
+        statusUpdate.innerHTML = '<span class="badge bg-warning text-dark me-1 fw-medium" style="font-size: 0.68rem;">Running</span> Processing pipeline data items...';
+        responseBox.value = '';
+        runTimer();
+
+        try {
+            const response = await fetch('/ai_ui/stream_insights', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt_text: promptText,
+                    pattern_select: selectedPattern
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP network loop execution failure: Status ${response.status}`);
+            
+            const data = await response.json();
+            responseBox.value = data.output || 'No actionable summary data insights returned from model response matrices blocks.';
+            statusUpdate.innerHTML = '<span class="badge bg-success text-white me-1 fw-medium" style="font-size: 0.68rem;">Complete</span> Generation loop successful.';
+        } catch (error) {
+            console.error(error);
+            responseBox.value = `Critical Engine Integration Pipeline Failure:\n----------------------------------------\n${error.message}`;
+            statusUpdate.innerHTML = '<span class="badge bg-danger text-white me-1 fw-medium" style="font-size: 0.68rem;">Error</span> Pipeline runtime dropped.';
+        } finally {
+            stopTimer();
+            runButton.disabled = false;
+        }
+    }
+
+    async function saveResponse() {
+        const filename = document.getElementById('filename').value.trim();
+        const content = document.getElementById('responseBox').value.trim();
+        const category = document.getElementById('categoryDropdown').value;
+
+        if (!content) {
+            alert('Cannot save blank records. Execute the pattern engine pipeline loop successfully first.');
+            return;
+        }
+        if (!filename || !category) {
+            alert('Please define both a file target description tag title and assign an output storage category path mapping container.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/ai_ui/save_output', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename, content, category })
+            });
+
+            if (!response.ok) throw new Error(`HTTP saving layout loop failure: Status ${response.status}`);
+
+            const data = await response.json();
+            alert(data.message || 'File asset written to local disk array logs cleanly.');
+        } catch (error) {
+            console.error(error);
+            alert(`File Persistence Stream Error: ${error.message}`);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,461 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="fw-bold m-0 text-capitalize text-dark">{{ conf.title }}</h1>
+        <p class="text-muted m-0 small">{{ conf.description }}</p>
+    </div>
+    <button class="btn btn-{{ conf.accent_color or 'danger' }} fw-bold rounded-pill shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
+        + {{ conf.form_button_text or 'Build New Group Sequence' }}
+    </button>
+</div>
+
+<div class="mb-4 position-relative">
+    <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+        </svg>
+    </span>
+    <input type="text" 
+           id="pageCollectionsSearch" 
+           class="form-control form-control-lg border ps-5 bg-white shadow-sm rounded-3 fs-6" 
+           placeholder="Search collections or nested items by name, title, description, keywords..." 
+           onkeyup="executeCollectionsLiveSearch()">
+</div>
+
+<!-- Parent track layout container layer -->
+<div class="row g-4" id="collectionsGrid" ondragover="allowCollectionDragOver(event)" ondrop="handleCollectionDrop(event)" ontouchmove="handleMobileTouchMove(event)" ontouchend="handleMobileTouchEnd(event)">
+    {% for collection in collections_list %}
+    
+    {% set bug_buffer = [collection.name | lower, collection.description | lower] %}
+    {% for item in collection['items'] %}
+        {% set _ = bug_buffer.append(item.title | lower) %}
+        {% set _ = bug_buffer.append(item.description | lower) %}
+        {% set _ = bug_buffer.append(item.category | lower) %}
+        {% set _ = bug_buffer.append(item.subcategory | lower) %}
+    {% endfor %}
+
+    <!-- Removed raw touch/drag boundaries from parent row layer wrapper to allow native scroll behavior -->
+    <div class="col-12 filterable-collection-row" data-search-content="{{ bug_buffer | join(' ') }}" data-id="{{ collection.id }}">
+        <div class="card border-0 border-start border-4 border-{{ conf.accent_color or 'danger' }} p-3 shadow-sm bg-white position-relative dashboard-card">
+            
+            <div class="position-absolute top-0 end-0 mt-3 me-3 d-flex gap-2 align-items-center" style="z-index: 10;">
+                
+                <!-- NEW: Dedicated Drag Handle Accent Icon Button (Active ONLY for sorting) -->
+                <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm drag-handle-button" 
+                        style="width: 32px; height: 32px; cursor: grab; touch-action: none;" 
+                        title="Drag to Reorder"
+                        draggable="true" 
+                        ondragstart="handleCollectionDragStart(event)" 
+                        ondragend="handleCollectionDragEnd(event)" 
+                        ontouchstart="handleMobileTouchStart(event)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                </button>
+
+                <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" style="width: 32px; height: 32px;" type="button" data-bs-toggle="collapse" data-bs-target="#collectionItemsContainer-{{ collection.id }}" aria-expanded="false" title="Toggle Content View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="text-muted collapse-indicator-chevron" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </button>
+
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm action-circle-btn" style="width: 32px; height: 32px;" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Manage Collection">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border small py-1">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 fw-semibold text-dark" href="#" data-bs-toggle="modal" data-bs-target="#editModal{{ collection.id }}">
+                                ✏️ Edit
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <form action="{{ url_for(request.blueprint ~ '.delete_collection_view', collection_key=collection_key) }}" method="POST" class="m-0 w-100">
+                                <input type="hidden" name="collection_id" value="{{ collection.id }}">
+                                <button type="submit" class="dropdown-item text-danger fw-semibold d-flex align-items-center gap-2 py-2" onclick="return confirm('Purge this collection bundle permanently?')">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card-body p-2">
+                <div class="pe-5 pb-2 mb-3 border-bottom">
+                    <h3 class="fw-bold text-dark m-0 user-select-none pe-5">{{ collection.name }}</h3>
+                    <p class="text-muted m-0 small mt-1 user-select-none">{{ collection.description }}</p>
+                </div>
+
+                <div class="collapse custom-persist-collapse" id="collectionItemsContainer-{{ collection.id }}">
+                    <div class="row g-3 pt-1">
+                        {% for item in collection['items'] %}
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between position-relative inner-item-card" draggable="false">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pe-4">
+                                        <span class="badge bg-dark text-capitalize" style="font-size: 0.7rem; font-weight: 500;">{{ item.category }}</span>
+                                        <span class="text-muted small text-capitalize" style="font-size: 0.72rem;">{{ item.subcategory }}</span>
+                                    </div>
+                                    <h6 class="fw-bold m-0 mb-1 text-dark text-truncate pe-4" title="{{ item.title }}">{{ item.title }}</h6>
+                                    <p class="text-muted small m-0 mb-2" style="line-height: 1.4; font-size: 0.82rem;">{{ item.description }}</p>
+                                </div>
+
+                                {% if item.url and item.url != '#' %}
+                                    {% if collection.is_video %}
+                                        <div class="ratio ratio-16x9 mt-2">
+                                            {% if "instagram.com" in item.url %}
+                                                {% set base_url = item.url.split('?')[0] %}
+                                                {% set clean_url = base_url if base_url.endswith('/') else base_url ~ '/' %}
+                                                {% set embed_url = clean_url if "/embed/" in clean_url else clean_url ~ 'embed/' %}
+                                                <iframe src="{{ embed_url }}" allowfullscreen class="rounded border bg-white" scrolling="no" frameborder="0"></iframe>
+                                            {% else %}
+                                                <iframe src="{{ item.url }}" allowfullscreen class="rounded border bg-white"></iframe>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <a href="{{ item.url }}" target="_blank" class="position-absolute top-0 end-0 mt-2 me-2 btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm inner-link-btn" style="width: 26px; height: 26px;" title="Open Target External Link">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" class="text-secondary" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5-.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                                                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                                            </svg>
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12">
+                            <p class="text-muted small m-0 text-center py-3 bg-light rounded border border-dashed">No items are currently mapped into this bundle layout structure.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal Registry -->
+    <div class="modal fade" id="editModal{{ collection.id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="{{ url_for(request.blueprint ~ '.edit_collection_view', collection_key=collection_key) }}" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Update</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body d-flex flex-column gap-3">
+                        <input type="hidden" name="collection_id" value="{{ collection.id }}">
+                        <div>
+                            <label class="form-label small fw-bold text-muted">Title</label>
+                            <input type="text" name="name" class="form-control" value="{{ collection.name }}" required autocomplete="off">
+                        </div>
+                        <div>
+                            <label class="form-label small fw-bold text-muted">Description</label>
+                            <textarea name="description" class="form-control" rows="2" required>{{ collection.description }}</textarea>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" name="is_video" value="true" id="editIsVideo-{{ collection.id }}" {% if collection.is_video %}checked{% endif %}>
+                            <label class="form-check-label small fw-bold" for="editIsVideo-{{ collection.id }}">Embed Video</label>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold text-muted m-0">Search/Filter items</label>
+                                <input type="text" class="form-control form-control-sm w-50" placeholder="🔍 Filter..." onkeyup="filterModalCheckboxes(this, 'editItemsContainer-{{ collection.id }}')">
+                            </div>
+                            <div class="row g-2 overflow-auto border rounded p-3 bg-light" id="editItemsContainer-{{ collection.id }}" style="max-height: 250px;">
+                                {% for item in source_items %}
+                                <div class="col-md-6 checkbox-item-wrapper">
+                                    <div class="form-check p-2 bg-white rounded border ps-5">
+                                        <input class="form-check-input" type="checkbox" name="items" value="{{ item.id }}" id="editCheck-{{ collection.id }}-{{ item.id }}" {% if item.id in collection.inner_ids or item.id|string in collection.inner_ids %}checked{% endif %}>
+                                        <label class="form-check-label text-truncate d-block small" for="editCheck-{{ collection.id }}-{{ item.id }}">
+                                            <strong>[{{ item.category }}]</strong> {{ item.title }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-{{ conf.accent_color or 'danger' }} fw-semibold">{{ conf.save_button_text or 'Save' }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5 bg-white rounded border" id="noCollectionsFallbackBlock">
+        <p class="text-muted m-0">No sequence clusters assembled yet in this module storage registry cache loop.</p>
+    </div>
+    {% endfor %}
+
+    <div class="col-12 text-center py-5 bg-white rounded border d-none" id="noCollectionsSearchResultsFallback">
+        <p class="text-muted m-0">No collection streams found matching that search sequence criteria string.</p>
+    </div>
+</div>
+
+<!-- Create Collection Modal -->
+<div class="modal fade" id="createCollectionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ url_for(request.blueprint ~ '.generic_collection_view', collection_key=collection_key) }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Create Collection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body d-flex flex-column gap-3">
+                    <div>
+                        <label class="form-label small fw-bold text-muted">Title</label>
+                        <input type="text" name="name" class="form-control" placeholder="Provide a descriptive title identification..." required autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="form-label small fw-bold text-muted">Description</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Provide a descriptive summary narrative explanation..." required></textarea>
+                    </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="is_video" value="true" id="createIsVideo">
+                        <label class="form-check-label small fw-bold" for="createIsVideo">Embed Video</label>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label small fw-bold text-muted m-0">Search/Filter items</label>
+                            <input type="text" class="form-control form-control-sm w-50" placeholder="🔍 Filter..." onkeyup="filterModalCheckboxes(this, 'createItemsContainer')">
+                        </div>
+                        <div class="row g-2 overflow-auto border rounded p-3 bg-light" id="createItemsContainer" style="max-height: 250px;">
+                            {% for item in source_items %}
+                            <div class="col-md-6 checkbox-item-wrapper">
+                                <div class="form-check p-2 bg-white rounded border ps-5">
+                                    <input class="form-check-input" type="checkbox" name="items" value="{{ item.id }}" id="createCheck-{{ item.id }}">
+                                    <label class="form-check-label text-truncate d-block small" for="createCheck-{{ item.id }}">
+                                        <strong>[{{ item.category }}]</strong> {{ item.title }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-{{ conf.accent_color or 'danger' }} fw-semibold">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-card {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+        border-radius: 8px !important;
+    }
+    .dashboard-card:hover {
+        box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
+    }
+    .inner-item-card {
+        transition: background-color 0.15s ease, border-color 0.15s ease !important;
+    }
+    .inner-item-card:hover {
+        background-color: #ffffff !important;
+        border-color: #dee2e6 !important;
+    }
+    .action-circle-btn, .inner-link-btn, .drag-handle-button {
+        transition: transform 0.1s ease, background-color 0.15s ease !important;
+    }
+    .action-circle-btn:hover, .inner-link-btn:hover, .drag-handle-button:hover {
+        transform: scale(1.05);
+        background-color: #e9ecef !important;
+    }
+    .drag-handle-button:active {
+        cursor: grabbing !important;
+        background-color: #dee2e6 !important;
+    }
+    #pageCollectionsSearch:focus {
+        border-color: #dee2e6 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        outline: 0;
+    }
+    .collapse-indicator-chevron {
+        transform: rotate(-90deg);
+        transition: transform 0.2s ease-in-out;
+    }
+    .custom-persist-collapse.show ~ div .collapse-indicator-chevron,
+    [aria-expanded="true"] .collapse-indicator-chevron {
+        transform: rotate(0deg) !important;
+    }
+</style>
+
+<script>
+    function executeCollectionsLiveSearch() {
+        const query = document.getElementById('pageCollectionsSearch').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('.filterable-collection-row');
+        const fallback = document.getElementById('noCollectionsSearchResultsFallback');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const searchContent = row.getAttribute('data-search-content') || '';
+            if (searchContent.includes(query)) {
+                row.classList.remove('d-none');
+                visibleCount++;
+            } else {
+                row.classList.add('d-none');
+            }
+        });
+
+        if (visibleCount === 0 && rows.length > 0) {
+            fallback.classList.remove('d-none');
+        } else {
+            fallback.classList.add('d-none');
+        }
+    }
+
+    function filterModalCheckboxes(inputElement, containerId) {
+        const query = inputElement.value.toLowerCase().trim();
+        const container = document.getElementById(containerId);
+        const wrappers = container.querySelectorAll('.checkbox-item-wrapper');
+        
+        wrappers.forEach(wrapper => {
+            const text = wrapper.innerText.toLowerCase();
+            wrapper.style.display = text.includes(query) ? "block" : "none";
+        });
+    }
+
+    // --- COLLAPSE STATE PERSISTENCE ---
+    document.addEventListener("DOMContentLoaded", function() {
+        const collectionKey = "{{ collection_key }}";
+        const storagePrefix = `collapse_state_${collectionKey}_`;
+
+        document.querySelectorAll('.custom-persist-collapse').forEach(el => {
+            const id = el.getAttribute('id');
+            const savedState = localStorage.getItem(storagePrefix + id);
+            const chevron = el.closest('.card').querySelector('.collapse-indicator-chevron');
+            
+            if (savedState === 'true') {
+                el.classList.add('show');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+                const btn = el.closest('.card').querySelector('[data-bs-toggle="collapse"]');
+                if (btn) btn.setAttribute('aria-expanded', 'true');
+            } else {
+                el.classList.remove('show');
+                if (chevron) chevron.style.transform = 'rotate(-90deg)';
+                const btn = el.closest('.card').querySelector('[data-bs-toggle="collapse"]');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+
+            el.addEventListener('shown.bs.collapse', () => {
+                localStorage.setItem(storagePrefix + id, 'true');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            });
+
+            el.addEventListener('hidden.bs.collapse', () => {
+                localStorage.setItem(storagePrefix + id, 'false');
+                if (chevron) chevron.style.transform = 'rotate(-90deg)';
+            });
+        });
+    });
+
+    // --- HYBRID DESKTOP & MOBILE DRAG ENGINE USING HANDLE ---
+    let dragSourceCard = null;
+
+    function handleCollectionDragStart(e) {
+        // Find the outer row relative to the button handle being gripped
+        dragSourceCard = e.target.closest('.filterable-collection-row');
+        if (dragSourceCard) {
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', dragSourceCard.getAttribute('data-id'));
+            }
+            setTimeout(() => dragSourceCard.style.opacity = '0.4', 0);
+        }
+    }
+
+    function allowCollectionDragOver(e) {
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleCollectionDrop(e) {
+        e.preventDefault();
+        const targetRow = e.target.closest('.filterable-collection-row');
+        executeDOMReorder(targetRow, e.clientY);
+    }
+
+    function handleCollectionDragEnd(e) {
+        if (dragSourceCard) dragSourceCard.style.opacity = '1';
+        dragSourceCard = null;
+    }
+
+    // Mobile touch handling layers
+    function handleMobileTouchStart(e) {
+        dragSourceCard = e.target.closest('.filterable-collection-row');
+        if (dragSourceCard) {
+            dragSourceCard.style.opacity = '0.5';
+        }
+    }
+
+    function handleMobileTouchMove(e) {
+        if (!dragSourceCard) return;
+        
+        // Only block browser scrolling if the user is actively targeting the touch handle button
+        e.preventDefault();
+        
+        const touchLocation = e.touches[0];
+        const targetElement = document.elementFromPoint(touchLocation.clientX, touchLocation.clientY);
+        if (!targetElement) return;
+
+        const targetRow = targetElement.closest('.filterable-collection-row');
+        if (targetRow && targetRow !== dragSourceCard) {
+            executeDOMReorder(targetRow, touchLocation.clientY);
+        }
+    }
+
+    function handleMobileTouchEnd(e) {
+        if (dragSourceCard) {
+            dragSourceCard.style.opacity = '1';
+            saveUpdatedCollectionSequence();
+        }
+        dragSourceCard = null;
+    }
+
+    function executeDOMReorder(targetRow, clientY) {
+        if (targetRow && dragSourceCard && targetRow !== dragSourceCard) {
+            const bounding = targetRow.getBoundingClientRect();
+            const offset = clientY - bounding.top;
+            
+            if (offset > bounding.height / 2) {
+                targetRow.after(dragSourceCard);
+            } else {
+                targetRow.before(dragSourceCard);
+            }
+            
+            if (window.event && window.event.type === 'drop') {
+                saveUpdatedCollectionSequence();
+            }
+        }
+    }
+
+    function saveUpdatedCollectionSequence() {
+        const currentCards = document.querySelectorAll('.filterable-collection-row');
+        const orderedIds = Array.from(currentCards).map(card => card.getAttribute('data-id')).filter(id => id);
+        const collectionKey = "{{ collection_key }}";
+        const moduleAppName = "{{ request.blueprint }}".replace('_app', '');
+        
+        fetch(`/${moduleAppName}/collection/${collectionKey}/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ordered_ids: orderedIds })
+        })
+        .then(res => {
+            if (!res.ok) console.error("Could not persist updated layout position matrices.");
+        })
+        .catch(err => console.error("Network communication exception encountered syncing card positions:", err));
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+# ONE SENTENCE SUMMARY
+Adopting microservices without organizational scale creates a distributed monolith, increasing costs and complexity while decreasing performance, making modular monoliths the superior architectural choice for most.
+
+# SUMMARY
+A technical expert argues that microservices are often an unnecessary tax, advocating for modular monoliths to improve performance, reduce infrastructure costs, and align engineering teams.
+
+# IDEAS
+1. Microservices function more as a financial tax than a technical architecture for teams smaller than a thousand engineers.
+2. Many organizations inadvertently create distributed monoliths that are physically separated but remain logically chained together.
+3. Logical coupling in a distributed system results in coordination hell where one change requires five simultaneous service releases.
+4. Network latency creates a million-fold speed difference compared to in-process memory calls that execute in nanoseconds.
+5. Shifting from microservices back to a monolith can improve API response times by over 93% without altering business logic.
+6. Sidecar proxies and service meshes can consume up to 90% of a pod's available CPU and memory resources.
+7. Observability and logging for complex distributed systems often cost companies between $50,000 and $500,000 annually per system.
+8. Amazon Prime Video reduced infrastructure costs by 90% by consolidating serverless microservices into a monolith on EC2.
+9. Staffing requirements for microservices often exceed available talent, requiring one SRE for every five to fifteen services.
+10. Elite DORA performance metrics are driven by code modularity rather than the specific choice of microservices architecture.
+11. Circuit breaker logic should exist as clean insulation within one structure rather than requiring separate buildings per appliance.
+12. AI-generated code increases bug volume and churn by nearly 100% in systems with high architectural coupling.
+13. Task completion increases with AI only when the architecture allows changes to be isolated and verified quickly.
+14. System architecture consistently mirrors the communication structure of the organization, regardless of the intended technical design.
+15. Teams must restructure ownership into stream-aligned business capabilities before attempting to change deployment boundaries or code.
+16. Codebases tend to snap back to match the organizational chart within six months if the underlying team structure remains unchanged.
+17. Recent data shows 42% of organizations are actively consolidating microservices back into larger, more manageable deployable units.
+18. Service mesh adoption has dropped significantly as the industry course-corrects toward simpler, more efficient architectural patterns.
+19. Independent scaling is only a valid justification for microservices when specific components have extreme traffic variance.
+20. FinOps is becoming a board-level concern, requiring CTOs to justify infrastructure spend in every quarterly review.
+21. Architectural Decision Records should include specific dollar amounts to ensure technical choices align with business reality.
+22. Every distributed call represents a complexity investment that must be paid back with measurable business outcomes.
+23. Maturity is defined by the modularity of logic rather than the number of services or containers running.
+24. The best architecture is one that stays out of the team's way and allows for predictable feature delivery.
+25. Extracting modules should be a reaction to specific measurable problems like traffic spikes or polyglot requirements.
+26. Moving from $80,000 to $4,000 in monthly infrastructure costs is possible by simply eliminating unnecessary network hops.
+27. Cognitive load increases with every additional service, making it harder for developers to understand the full system.
+28. Programmatic tools like ArchUnit can enforce package rules and boundaries within a monolith to prevent architectural decay.
+29. High-concurrency workloads may justify a separate service, but this decision should be a last resort, not a default.
+30. Success in modern software engineering requires matching system complexity to the actual problem without exceeding the complexity budget.

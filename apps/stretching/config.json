@@ -1,0 +1,31 @@
+{
+    "APP_TITLE": "Stretching Home",
+    "INDEX_TITLE": "Stretching Home",
+    "INDEX_DESCRIPTION": "Select a module below to create stretching sessions and routines.",
+    "NAV_LINKS": [
+        {"name": "Stretching", "url": "/stretching/page/stretching"},
+        {"name": "Routines", "url": "/stretching/collection/routines"}
+    ],
+    "MODULE_PAGES": {
+        "stretching": {
+            "title": "Stretching Workspace",
+            "description": "Save your favorite movements and flexibility protocols.",
+            "db_file": "stretching.json",
+            "categories_file": "stretching_categories.json",
+            "accent_color": "success",
+            "form_button_text": "Add New Stretch",
+            "save_button_text": "Save Stretch"
+        }
+    },
+    "COLLECTION_PAGES": {
+        "routines": {
+            "title": "Manage Routines",
+            "description": "Put together collections of stretches into custom mobility routines.",
+            "db_file": "stretching_routines.json",
+            "source_module": "stretching",
+            "accent_color": "success",
+            "form_button_text": "Build Routine",
+            "save_button_text": "Save Routine"
+        }
+    }
+}

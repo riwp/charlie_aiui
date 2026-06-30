@@ -1,0 +1,319 @@
+/* --- Global Styles --- */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 4px;
+    overflow-x: hidden;
+}
+
+/* --- Navbar --- */
+.navbar {
+    background-color: #007BFF;
+    padding: 0.5rem 0;
+    margin-bottom: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+
+.nav-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 0 0.5rem;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+/* --- Buttons --- */
+button, .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px #0056b3;
+}
+
+button:active, .btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px #0056b3;
+}
+
+/* --- Main Layout --- */
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px; 
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* --- STICKY HEADER FIX --- */
+.explorer-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 4px;
+    margin-bottom: 6px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #f4f4f4;
+    padding: 4px 0;
+}
+
+.explorer-header-row .btn, .action-dropdown {
+    flex: 1;
+    height: 38px;
+    font-size: 0.75rem;
+    min-width: 0;
+}
+
+/* --- Table Dropdown Fix --- */
+.cell-action-dropdown {
+    width: 120px;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.85rem;
+}
+
+/* --- Table & Cards --- */
+.training-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px; 
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #ddd;
+}
+
+.drills-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.drills-table th { 
+    background: #f0f2f5; 
+    padding: 10px; 
+    text-align: left; 
+    font-size: 0.85rem; 
+}
+
+.drills-table td { 
+    padding: 10px; 
+    border-bottom: 1px solid #eee; 
+    font-size: 0.9rem; 
+}
+
+/* Long-press UI optimizations for table rows */
+.drills-table tbody tr {
+    cursor: pointer;
+    -webkit-touch-callout: none; /* Prevents native iOS touch popup */
+    -webkit-user-select: none;   /* Prevents selection highlighting on hold */
+    user-select: none;
+}
+
+.drills-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.hide-actions th:last-child, 
+.hide-actions td:last-child {
+    display: none !important;
+}
+
+.btn-active {
+    background-color: #28a745 !important;
+    box-shadow: 0 2px #1e7e34 !important;
+}
+
+/* --- Context Menu Modal Layout --- */
+.context-menu-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000; /* Overrides absolute and sticky row elements */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.context-menu-content {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 88%;
+    max-width: 340px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    animation: fadeInMenu 0.15s ease-out;
+}
+
+.context-menu-title {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1rem;
+    color: #333333;
+    font-weight: bold;
+    word-break: break-word;
+}
+
+.context-menu-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.context-menu-options .btn {
+    height: 48px;
+    width: 100%;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+@keyframes fadeInMenu {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* --- Mobile / Card View --- */
+@media (max-width: 768px) {
+    .drills-table, .drills-table thead, .drills-table tbody, .drills-table th, .drills-table td, .drills-table tr { 
+        display: block; 
+    }
+    
+    .drills-table thead tr { 
+        position: absolute; 
+        top: -9999px; 
+    }
+    
+    .drills-table tr { 
+        margin-bottom: 12px; 
+        border: 1px solid #ddd; 
+        border-radius: 8px; 
+        padding: 8px; 
+        background: #fff; 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .drills-table td { 
+        position: relative;
+        padding-left: 35%; /* Adjusted for "SUBCAT" label width */
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+        min-height: 40px;
+        text-align: left;
+        word-break: break-word;
+        display: flex;
+        align-items: center;
+    }
+
+    .drills-table td:last-child {
+        border-bottom: none;
+    }
+
+    /* Column Labeling Logic */
+    .drills-table td:before { 
+        position: absolute;
+        left: 8px;
+        font-weight: bold;
+        color: #007BFF;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        width: 30%;
+    }
+
+    /* Updated Mapping for CAT, SUBCAT, TITLE, NOTES, ACT */
+    .drills-table td:nth-of-type(1):before { content: "Cat"; }
+    .drills-table td:nth-of-type(2):before { content: "Subcat"; }
+    .drills-table td:nth-of-type(3):before { content: "Title"; }
+    .drills-table td:nth-of-type(4):before { content: "Notes"; }
+    .drills-table td:nth-of-type(5):before { content: "Act"; }
+
+    .cell-action-dropdown {
+        width: 100%;
+    }
+    
+    /* Tactile buttons for mobile */
+    .explorer-header-row .btn {
+        height: 45px;
+        font-size: 0.85rem;
+    }
+}
+
+.full-width-select { 
+    width: 100%; 
+    padding: 10px; 
+    border-radius: 6px; 
+    border: 1px solid #ccc; 
+    font-size: 16px; /* Prevents iOS auto-zoom */
+}
+
+.comments-cell { 
+    white-space: pre-wrap; 
+    font-size: 0.85rem; 
+    color: #444; 
+}
+
+/* --- Explorer Layout (Tactical Sidebar) --- */
+.explorer-container {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.explorer-sidebar {
+    flex: 1;
+    min-width: 250px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.explorer-main {
+    flex: 2;
+}
+
+.file-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+}
+
+.file-item:hover {
+    background-color: #f0f7ff;
+}
+
+.file-item.active {
+    background-color: #e7f3ff;
+    border-left: 4px solid #007BFF;
+    font-weight: bold;
+}

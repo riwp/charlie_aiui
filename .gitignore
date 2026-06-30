@@ -1,0 +1,20 @@
+# Python Virtual Environments
+aiui_venv/
+.venv/
+venv/
+env/
+secrets/
+
+# Large media files
+training_videos/
+*.mp4
+*.mov
+*.avi
+
+# IDEs and OS junk
+.vscode/
+.idea/
+.DS_Store
+
+# Local application secrets
+.env

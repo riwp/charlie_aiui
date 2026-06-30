@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Manage Prompts - CM AI</title>
+    <link rel="stylesheet" href="/style.css">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+</head>
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="main">
+    <div class="page-header" style="text-align:center; padding: 10px;">
+        <h1>Prompt Library</h1>
+    </div>
+
+    <div class="training-card" style="margin-bottom: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+            <label style="font-weight: bold; color: #007BFF; font-size: 0.9rem;">Select a prompt to edit or delete:</label>
+            <select id="promptSelect" onchange="loadPrompt()" class="full-width-select">
+                <option disabled selected>Select a prompt</option>
+            </select>
+
+            <label style="font-weight: bold; color: #007BFF; font-size: 0.9rem;">Prompt Text:</label>
+            <textarea id="promptText" class="full-width-select" style="min-height: 200px;"></textarea>
+
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button id="copyPromptBtn" class="btn" style="flex: 1; height: 50px;" title="Copy to clipboard">Copy</button>
+                <button onclick="savePrompt()" class="btn" style="flex: 1; height: 50px; background-color: #28a745; box-shadow: 0 2px #1e7e34;">Save</button>
+                <button onclick="deletePrompt()" class="btn" style="flex: 1; height: 50px; background-color: #dc3545; box-shadow: 0 2px #a71d2a;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="training-card">
+        <h3 style="margin: 0 0 10px 0; color: #007BFF; font-size: 1.1rem;">Add New Prompt</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+            <input type="text" id="newPromptName" placeholder="Filename (e.g. summarize)" class="full-width-select">
+            <textarea id="newPromptText" placeholder="Enter prompt content here..." class="full-width-select" style="min-height: 150px;"></textarea>
+            
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button onclick="addPrompt()" class="btn" style="flex: 2; height: 50px;">+ Add Prompt</button>
+                <button onclick="clearNewPrompt()" class="btn" style="flex: 1; height: 50px; background-color: #6c757d;">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; width: 100%;">
+        <a href="/" class="btn" style="width: 100%; display: block; text-align: center; text-decoration: none; background-color: #343a40;">Back to Assistant</a>
+    </div>
+</div>
+
+<script>
+    async function loadPromptsList() {
+        try {
+            const response = await fetch("/list_prompts");
+            const data = await response.json();
+            const select = document.getElementById("promptSelect");
+            select.innerHTML = '<option disabled selected>Select a prompt</option>';
+
+            data.prompts.forEach(prompt => {
+                const option = document.createElement("option");
+                option.value = prompt;
+                option.text = prompt;
+                select.appendChild(option);
+            });
+        } catch (err) {
+            console.error("Error loading prompts:", err);
+        }
+    }
+
+    async function loadPrompt() {
+        const select = document.getElementById("promptSelect");
+        const promptFile = select.value;
+        if (!promptFile) return;
+
+        try {
+            const response = await fetch("/get_prompt_content", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename: promptFile })
+            });
+            const data = await response.json();
+            document.getElementById("promptText").value = data.content || "";
+        } catch (err) {
+            console.error("Error loading prompt content:", err);
+        }
+    }
+
+    async function savePrompt() {
+        const select = document.getElementById("promptSelect");
+        const filename = select.value;
+        const content = document.getElementById("promptText").value;
+
+        if (!filename) { alert("Select a prompt first."); return; }
+
+        const response = await fetch("/save_prompt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename, content })
+        });
+
+        const data = await response.json();
+        alert(data.message);
+        loadPromptsList();
+    }
+
+    async function deletePrompt() {
+        const select = document.getElementById("promptSelect");
+        const filename = select.value;
+        if (!filename) { alert("Select a prompt first."); return; }
+        if (!confirm(`Are you sure you want to delete "${filename}"?`)) return;
+
+        const response = await fetch("/delete_prompt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename })
+        });
+
+        const data = await response.json();
+        alert(data.message);
+        document.getElementById("promptText").value = "";
+        loadPromptsList();
+    }
+
+    async function addPrompt() {
+        const name = document.getElementById("newPromptName").value.trim();
+        const content = document.getElementById("newPromptText").value;
+
+        if (!name || !content) { alert("Enter both prompt name and text."); return; }
+
+        const response = await fetch("/add_prompt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: name + ".md", content })
+        });
+
+        const data = await response.json();
+        alert(data.message);
+        document.getElementById("newPromptName").value = "";
+        document.getElementById("newPromptText").value = "";
+        loadPromptsList();
+    }
+
+    async function copyPromptToClipboard() {
+        const ta = document.getElementById('promptText');
+        if (!ta) return;
+        const text = ta.value || '';
+
+        try {
+            await navigator.clipboard.writeText(text);
+            const btn = document.getElementById('copyPromptBtn');
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '✓';
+                setTimeout(() => { btn.innerHTML = orig; }, 1000);
+            }
+        } catch (err) {
+            const tmp = document.createElement('textarea');
+            tmp.value = text;
+            tmp.style.position = 'fixed';
+            tmp.style.left = '-9999px';
+            document.body.appendChild(tmp);
+            tmp.select();
+            document.execCommand('copy');
+            document.body.removeChild(tmp);
+        }
+    }
+
+    function clearNewPrompt() {
+        document.getElementById("newPromptName").value = "";
+        document.getElementById("newPromptText").value = "";
+    }
+
+    loadPromptsList();
+</script>
+</body>
+</html>

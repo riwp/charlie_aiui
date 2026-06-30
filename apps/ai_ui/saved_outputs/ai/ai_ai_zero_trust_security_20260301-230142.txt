@@ -1,0 +1,45 @@
+URL: https://youtu.be/d8d9EZHU7fw?si=CplpZsI0Lh8fOfiw
+
+ONE SENTENCE SUMMARY
+Zero trust principles are critical for securing agentic AI systems by verifying identities, controlling access, and assuming breaches to contain inherent power and risk.
+
+SUMMARY
+A cybersecurity architect details how to apply zero trust principles to agentic AI environments, emphasizing verification, least privilege, and pervasive security to mitigate new attack surfaces.
+
+IDEAS
+1.  Agentic AI systems possess the ability to not just process information but also to act, interacting with APIs, tools, moving data, and creating sub-agents.
+2.  Each new capability introduced by agentic AI simultaneously creates a novel attack surface, escalating security risks.
+3.  The core principle of zero trust dictates "verify, then trust," ensuring no implicit trust is granted without prior validation.
+4.  Modern security strategy necessitates replacing the "just in case" approach to access with "just in time" provisioning.
+5.  The principle of least privilege is paramount, granting access rights only for the duration and scope absolutely necessary.
+6.  Security controls should transition from perimeter-based defenses to pervasive integration throughout the entire system architecture.
+7.  A foundational tenet of zero trust, often overlooked, is the assumption of breach, designing security with the premise that attackers are already inside the system.
+8.  Traditional zero trust secures human users through robust identity and access management, strong authentication, and precise access controls.
+9.  Device security is critical, ensuring user devices are uncompromised and free from jailbreaks or attacker control.
+10. Data layer protection involves encrypting sensitive information and implementing controls to prevent unauthorized data exfiltration.
+11. Network security within a zero-trust model employs encryption for data in transit and micro-segmentation to isolate system components, limiting lateral movement of threats.
+12. In agentic AI environments, software agents themselves become actors, operating with non-human identities (NHIs).
+13. The proliferation of non-human identities demands equal or greater control and visibility compared to human users, including autonomous operational supervision.
+14. All tools leveraged by AI agents, including APIs and data sources, must be rigorously vetted, registered, and deemed trustworthy.
+15. Data utilized for training and augmenting AI models, such as preference and contextual information, requires stringent security measures against tampering and poisoning.
+16. It's crucial to establish mechanisms that verify an AI agent's intentions align precisely with the original, authorized user objectives.
+17. Agentic system architecture comprises sensing (input), AI (reasoning augmented by policies), actions (API calls, data manipulation, tool use), all driven by credentials.
+18. A significant threat is direct prompt injection, where malicious prompts can subvert the agent's context and induce unintended actions.
+19. Adversaries can compromise an agent's behavior by manipulating policy and preference information or by poisoning its underlying training model.
+20. Attackers may insert themselves at various interfaces within the agentic system, such as during API calls, to intercept or control operations.
+21. Individual components like services, APIs, data sources, and other agents represent extended attack surfaces susceptible to compromise.
+22. Credential theft or unauthorized privilege escalation within the agentic ecosystem poses a severe risk, enabling attackers to gain control.
+23. Implementing zero trust for agents necessitates unique credentials for every agent, sub-agent, and user, meticulously managed.
+24. Credentials must be stored in a secure vault system, enforcing dynamic, just-in-time provisioning rather than static embedding in code.
+25. A centralized tool registry should verify and sanction secure APIs, databases, and tools that agents are permitted to interact with.
+26. An AI firewall or gateway can inspect agent inputs and outputs, blocking improper actions, prompt injections, and data leakage.
+27. Immutable logging of all agent activities is essential for forensic traceability, allowing post-incident analysis and accountability.
+28. Continuous scanning of the entire environment, encompassing networks, endpoints, and AI models, helps detect latent vulnerabilities.
+29. Maintaining a human in the loop, equipped with a kill switch, is vital for immediately halting out-of-control agent behavior.
+30. Implementing throttles can control autonomous agent actions, preventing unintended scale or frequency of operations (e.g., buying applications).
+31. Canary deployments allow for controlled testing of agent systems in isolated environments before full-scale deployment, assessing proper operation.
+32. The inherent complexity of agentic systems and the multitude of associated threats demand equally sophisticated and robust security defenses.
+33. Agentic AI simultaneously amplifies both operational power and potential risk, requiring careful management.
+34. Zero trust provides a comprehensive framework to effectively contain the amplified power and risk associated with agentic AI.
+35. Each agent must continually validate its identity, justify its requested actions, and consistently earn the trust it requires.
+36. Correctly deployed zero trust principles act as crucial guardrails, ensuring AI innovation remains aligned with intended purposes and prevents exploitation by malicious actors.

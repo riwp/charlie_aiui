@@ -1,0 +1,33 @@
+URL: https://youtu.be/mViFYTwWvcM?si=OIaR9vfpM4NwwCZI
+
+ONE SENTENCE SUMMARY
+Spec-driven development revolutionizes AI-assisted coding by formalizing specifications into a primary artifact, ensuring predictable, consistent, and higher-quality software outcomes.
+
+SUMMARY
+A speaker explains how spec-driven development, unlike "vibe coding," integrates traditional SDLC principles into AI-assisted coding for structured and predictable software creation.
+
+IDEAS
+1.  The primary challenge in app development is shifting from writing code to effectively communicating desired outcomes to Large Language Models (LLMs).
+2.  Spec-driven development is emerging as an essential skill for AI engineers and those using AI to build applications.
+3.  "Vibe coding," a common perception of AI-assisted coding, involves iterative prompt editing with an LLM, often leading to inconsistent results.
+4.  Vibe coding is excellent for generating boilerplate code and rapid testing, but often fails to produce exact desired implementations initially.
+5.  The lack of deterministic outcomes in vibe coding, where different tries yield different results, frustrates many developers.
+6.  Vibe coding bypasses the conventional Software Development Life Cycle (SDLC), potentially leading to less structured development.
+7.  The traditional SDLC emphasizes planning, designing with project requirements (PRD), implementing, testing (QA), deploying, and maintenance.
+8.  Spec-driven development integrates critical SDLC components into the AI-generated software development process.
+9.  Unlike vibe coding, spec coding prompts LLMs not for specific implementations, but for system behavior and constraints.
+10. The initial specification in spec-driven development acts as a contract to generate detailed project requirements.
+11. Requirements in spec coding serve as the main hierarchy, guiding the AI agent in writing code, tests, documentation, and verification.
+12. Developers approve or edit requirements before any code is generated, ensuring alignment with project goals.
+13. Design documents, which include "to-dos" for specific implementations, are created only after requirements are satisfactory.
+14. This phased approach, where nothing is implemented until design is satisfactory, ensures clear instructions for AI models.
+15. A well-defined spec is superior to having an LLM guess the best solution for a user's request.
+16. Traditional development often started with writing code first, then generating documentation.
+17. Test-driven development (TDD) reversed this, prioritizing tests and desired functionality before writing code.
+18. Spec-driven development takes a radical approach, starting with specifications, then design, then implementation, and finally code.
+19. This new methodology is described as "test-driven development and behavior-driven development on steroids."
+20. Vibe coding can sometimes take longer than manual coding due to the back-and-forth iteration required to achieve the desired outcome.
+21. Spec-driven development significantly reduces ambiguity for AI coding agents by providing clear, detailed instructions and test cases.
+22. The specification document becomes the primary artifact that directs all downstream work, including implementation and testing.
+23. The example of a `/login` endpoint demonstrates how spec-driven development precisely defines features, endpoints, variables, and failure codes.
+24. Generating test cases directly from the specification (e.g., `valid credentials -> 200 code`) is a core benefit, enhancing AI-assisted coding precision.

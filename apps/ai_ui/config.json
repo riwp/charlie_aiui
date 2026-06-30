@@ -1,0 +1,15 @@
+{
+    "APP_TITLE": "AI Home",
+    "INDEX_TITLE": "AI Home",
+    "NAV_LINKS": [
+        {"name": "AI Summarization", "url": "/ai_ui/page/ai_summarization"},
+        {"name": "Stored Files", "url": "/ai_ui/page/ai_savedfiles"}
+    ],
+    "MODULE_PAGES": {
+        "ai_summarization": {
+            "title": "AI Summarization",
+            "description": "Select a prompt for context, enter your text or a URL to start. You can save and categorize output.",
+            "accent_color": "dark"
+        }
+    }
+}

@@ -1,0 +1,54 @@
+[
+    {
+        "category": "Chicken",
+        "subcategory": ""
+    },
+    {
+        "category": "Meal Prep",
+        "subcategory": ""
+    },
+    {
+        "category": "Tofu",
+        "subcategory": ""
+    },
+    {
+        "category": "Snacks",
+        "subcategory": ""
+    },
+    {
+        "category": "Mexican",
+        "subcategory": ""
+    },
+    {
+        "category": "Shrimp",
+        "subcategory": ""
+    },
+    {
+        "category": "Sushi",
+        "subcategory": ""
+    },
+    {
+        "category": "Dessert",
+        "subcategory": ""
+    },
+    {
+        "category": "Pork",
+        "subcategory": ""
+    },
+    {
+        "category": "Seafood",
+        "subcategory": ""
+    },
+    {
+        "category": "Sauces",
+        "subcategory": ""
+    },
+    {
+        "category": "Favorites",
+        "subcategory": ""
+    },
+    {
+        "category": "Favorites",
+        "subcategory": "Chicken"
+    }
+]

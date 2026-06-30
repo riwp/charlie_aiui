@@ -1,0 +1,31 @@
+{
+    "APP_TITLE": "Recipes Home",
+    "INDEX_TITLE": "Recipe Home",
+    "INDEX_DESCRIPTION": "Select a module below to track instructions and bundle meals.",
+    "NAV_LINKS": [
+        {"name": "Recipes", "url": "/recipe/page/recipes"},
+        {"name": "Cookbooks", "url": "/recipe/collection/cookbooks"}
+    ],
+    "MODULE_PAGES": {
+        "recipes": {
+            "title": "Recipes",
+            "description": "Add your favorite reccipes, search and more.",
+            "db_file": "recipes.json",
+            "categories_file": "recipe_categories.json",
+            "accent_color": "success",
+            "form_button_text": "Add New Recipe",
+            "save_button_text": "Save Recipe"
+        }
+    },
+    "COLLECTION_PAGES": {
+        "cookbooks": {
+            "title": "Manage Cookbooks",
+            "description": "Put together collection of recipes into recipe books.",
+            "db_file": "cookbooks.json",
+            "source_module": "recipes",
+            "accent_color": "success",
+            "form_button_text": "Build Cookbooks",
+            "save_button_text": "Save Cookbook"
+        }
+    }
+}

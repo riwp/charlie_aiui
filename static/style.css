@@ -1,0 +1,9 @@
+/* Custom mobile-first tweaks can go here */
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}

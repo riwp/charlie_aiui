@@ -1,0 +1,57 @@
+{
+    "APP_TITLE": "Boxing Home",
+    "INDEX_TITLE": "Boxing & Training Home",
+    "INDEX_DESCRIPTION": "Select a module below to save drills, build workouts, define goals, and track progress.",
+    "NAV_LINKS": [
+        {"name": "Drills", "url": "/boxing/page/drills"},
+        {"name": "Workouts", "url": "/boxing/collection/workouts"},
+        {"name": "Videos", "url": "/boxing/page/videos"},
+        {"name": "Progress", "url": "/boxing/manage/progress"},
+        {"name": "Goals", "url": "/boxing/manage/goals"}
+    ],
+    "MODULE_PAGES": {
+        "drills": {
+            "title": "Boxing Drills",
+            "description": "Save your favorite instructional drills and techniques across web sites.",
+            "db_file": "drills.json",
+            "categories_file": "drill_categories.json",
+            "accent_color": "primary",
+            "form_button_text": "Add Drill",
+            "save_button_text": "Save Drill"
+        },
+        "videos": {
+            "title": "Boxing Videos",
+            "description": "Save your favorite instructional videos and techniques across web sites.",
+            "db_file": "videos.json",
+            "categories_file": "video_categories.json",
+            "accent_color": "primary",
+            "form_button_text": "Add Video",
+            "save_button_text": "Save Video"
+        }
+    },
+    "COLLECTION_PAGES": {
+        "workouts": {
+            "title": "Manage Workouts",
+            "description": "Put together combinations of drills to have ready to go workouts.",
+            "db_file": "workouts.json",
+            "source_module": "drills",
+            "accent_color": "danger",
+            "form_button_text": "Build Workout",
+            "save_button_text": "Save Workout"
+        }
+    },
+    "NOTE_PAGES": {
+        "progress": {
+            "title": "Track Progress",
+            "description": "Reflect on your workouts, track your progress, and areas to improve to meet your goals",
+            "db_file": "progress.json",
+            "accent_color": "success"
+        },
+        "goals": {
+            "title": "Goals",
+            "description": "Define your goals to remain focused.",
+            "db_file": "goals.json",
+            "accent_color": "warning"
+        }
+    }
+}

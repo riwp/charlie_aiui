@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-2">
+    <div>
+        <h1 class="fw-bold m-0 text-dark h4 d-flex align-items-center gap-2 mt-1">
+            <a href="{{ url_for('ai_blueprint.ai_savedfiles') }}" class="btn btn-sm btn-light border py-1 mb-1 text-secondary" style="font-size: 0.8rem;">← </a><span class="text-capitalize text-primary">{{ category }}</span> Repository</h1>
+    </div>
+</div>
+
+<div class="row g-3 match-height-row">
+    
+    <div class="col-12 col-md-4 d-flex flex-column">
+        <div class="card border-0 shadow-sm bg-white p-3 rounded-3 flex-grow-1 d-flex flex-column">
+            <label class="form-label small fw-semibold text-secondary mb-2" style="font-size: 0.78rem;">Available Files</label>
+            
+            <div class="mb-2 position-relative">
+                <input type="text" id="local-file-search" class="form-control form-control-sm border bg-light py-1.5" style="font-size: 0.8rem;" placeholder="🔍 Filter files in this folder...">
+            </div>
+            
+            <div class="list-group list-group-flush overflow-auto rounded border style-scrollbar flex-grow-1" style="max-height: 450px; min-height: 330px;">
+                {% for file in files %}
+                <button onclick="loadFileContent('{{ file }}', this)" class="list-group-item list-group-item-action text-truncate py-2 font-monospace file-item-btn border-bottom-0" style="font-size: 0.8rem;">
+                    📄 {{ file }}
+                </button>
+                {% else %}
+                <div class="py-5 text-center text-muted small bg-light h-100 d-flex flex-column justify-content-center align-items-center">
+                    <span class="fs-4 mb-1">📂</span>
+                    <div>No log files cached for this tracking matrix directory node container.</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-8 d-flex flex-column">
+        <div class="card border-0 shadow-sm bg-white p-3 rounded-3 flex-grow-1 d-flex flex-column">
+            
+            <div class="d-flex justify-content-between align-items-center mb-2 gap-2 flex-wrap">
+                <label class="form-label small fw-semibold text-secondary m-0" style="font-size: 0.78rem;">Saved Outputs</label>
+                <div id="active_filename" class="badge bg-dark font-monospace text-truncate px-2 py-1.5 fw-medium" style="max-width: 100%; font-size: 0.75rem;">No Active File Loaded</div>
+            </div>
+            
+            <textarea id="fileViewerBox" 
+                      class="form-control border bg-light text-dark rounded-2 small flex-grow-1 workspace-textarea" 
+                      style="min-height: 440px; font-family: var(--bs-font-monospace); font-size: 0.82rem; line-height: 1.4;" 
+                      placeholder="Select a file from the list to view..." 
+                      readonly></textarea>
+        </div>
+    </div>
+</div>
+
+<style>
+    .workspace-textarea {
+        resize: none;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .file-item-btn {
+        transition: background-color 0.1s ease, color 0.1s ease;
+    }
+    .file-item-btn.active {
+        background-color: var(--bs-light) !important;
+        color: var(--bs-primary) !important;
+        font-weight: 600;
+        border-left: 3px solid var(--bs-primary) !important;
+    }
+    .style-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .style-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .style-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    @media (min-width: 768px) {
+        .match-height-row {
+            display: flex;
+            align-items: stretch;
+        }
+        .match-height-row > div {
+            display: flex;
+        }
+    }
+</style>
+
+<script>
+    // --- SEARCH FILTER MATRICES (LOCAL AND GLOBAL) ---
+    document.addEventListener("DOMContentLoaded", () => {
+        const localSearch = document.getElementById('local-file-search');
+        const globalSearch = document.getElementById('search-input') || 
+                             document.getElementById('global-search') || 
+                             document.querySelector('input[type="search"]');
+
+        const executeFileFiltering = (searchString) => {
+            const cleanQuery = searchString.toLowerCase().trim();
+            const fileButtons = document.querySelectorAll('.file-item-btn');
+
+            fileButtons.forEach(button => {
+                const filenameText = button.textContent.toLowerCase();
+                if (filenameText.includes(cleanQuery)) {
+                    button.style.setProperty('display', 'block', 'important');
+                } else {
+                    button.style.setProperty('display', 'none', 'important');
+                }
+            });
+        };
+
+        // Wire local directory filter input events
+        if (localSearch) {
+            localSearch.addEventListener('input', (e) => {
+                executeFileFiltering(e.target.value);
+            });
+        }
+
+        // Keep global search fallback synced if used
+        if (globalSearch) {
+            globalSearch.placeholder = "Filter workspace matrix...";
+            globalSearch.addEventListener('input', (e) => {
+                executeFileFiltering(e.target.value);
+                if (localSearch) localSearch.value = e.target.value; // Sync inputs
+            });
+        }
+    });
+
+    // --- CORE FILE PROCESSING MECHANICS ---
+    async function loadFileContent(filename, element) {
+        const viewerBox = document.getElementById('fileViewerBox');
+        const activeLabel = document.getElementById('active_filename');
+        
+        document.querySelectorAll('.file-item-btn').forEach(btn => btn.classList.remove('active'));
+        if (element) {
+            element.classList.add('active');
+        }
+        
+        activeLabel.innerText = filename;
+        viewerBox.value = "Fetching file binary block telemetry...";
+
+        try {
+            const response = await fetch('/ai_ui/get_file_content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    category: "{{ category }}",
+                    filename: filename
+                })
+            });
+
+            if (!response.ok) throw new Error(`FileSystem IO Loop error code status: ${response.status}`);
+            const data = await response.json();
+            viewerBox.value = data.content;
+        } catch (error) {
+            console.error(error);
+            viewerBox.value = `Critical Disk Node Communication IO Crash:\n----------------------------------------\n${error.message}`;
+        }
+    }
+</script>
+
+{% endblock %}
