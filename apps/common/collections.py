@@ -103,6 +103,7 @@ def handle_reorder_collection(collection_key, col_conf):
     """
     Asynchronously reads re-ordered IDs array maps from UI fetch cycles, sorts
     persisted database index arrays to match tracking sequences, and writes to flat-file storage.
+    (Handles sorting the ordering of the main collections lists themselves)
     """
     req_data = request.get_json()
     if not req_data or "ordered_ids" not in req_data:
@@ -128,3 +129,34 @@ def handle_reorder_collection(collection_key, col_conf):
 
     save_json_file(col_conf["db_file"], reordered_list)
     return jsonify({"status": "success", "sequence_length": len(reordered_list)})
+
+def handle_reorder_collection_items(collection_key, col_conf):
+    """
+    Asynchronously reads re-ordered item IDs from a drag-and-drop action,
+    finds the specific parent collection, and saves the new inner sequence layout.
+    """
+    req_data = request.get_json() or {}
+    collection_id = req_data.get("collection_id")
+    ordered_item_ids = req_data.get("ordered_item_ids") or req_data.get("ordered_ids")
+
+    if not collection_id or not ordered_item_ids:
+        return jsonify({"status": "error", "message": "Missing collection tracking identifier fields."}), 400
+
+    collections = load_json_file(col_conf["db_file"])
+    if not isinstance(collections, list):
+        return jsonify({"status": "error", "message": "Target source repository data is unmapped."}), 500
+
+    updated = False
+    for c in collections:
+        if isinstance(c, dict) and str(c.get("id")) == str(collection_id):
+            # Your data structure references 'drills' for items inside a collection object
+            target_key = "drills" if "drills" in c else "items"
+            c[target_key] = [str(x) for x in ordered_item_ids]
+            updated = True
+            break
+
+    if not updated:
+        return jsonify({"status": "error", "message": "Target collection object could not be found."}), 404
+
+    save_json_file(col_conf["db_file"], collections)
+    return jsonify({"status": "success", "message": "Collection interior items updated and saved."})

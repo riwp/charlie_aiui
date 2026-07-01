@@ -35,16 +35,15 @@
         {% set _ = bug_buffer.append(item.subcategory | lower) %}
     {% endfor %}
 
-    <!-- Removed raw touch/drag boundaries from parent row layer wrapper to allow native scroll behavior -->
     <div class="col-12 filterable-collection-row" data-search-content="{{ bug_buffer | join(' ') }}" data-id="{{ collection.id }}">
         <div class="card border-0 border-start border-4 border-{{ conf.accent_color or 'danger' }} p-3 shadow-sm bg-white position-relative dashboard-card">
             
             <div class="position-absolute top-0 end-0 mt-3 me-3 d-flex gap-2 align-items-center" style="z-index: 10;">
                 
-                <!-- NEW: Dedicated Drag Handle Accent Icon Button (Active ONLY for sorting) -->
+                <!-- Dedicated Drag Handle Accent Icon Button (Active ONLY for sorting) -->
                 <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm drag-handle-button" 
                         style="width: 32px; height: 32px; cursor: grab; touch-action: none;" 
-                        title="Drag to Reorder"
+                        title="Drag to Reorder Collection"
                         draggable="true" 
                         ondragstart="handleCollectionDragStart(event)" 
                         ondragend="handleCollectionDragEnd(event)" 
@@ -92,18 +91,39 @@
                 </div>
 
                 <div class="collapse custom-persist-collapse" id="collectionItemsContainer-{{ collection.id }}">
-                    <div class="row g-3 pt-1">
+                    <!-- CHANGED: Added dragover/drop hooks and data attributes to track target collections -->
+                    <div class="row g-3 pt-1 items-grid-container" 
+                         data-collection-id="{{ collection.id }}"
+                         ondragover="allowItemDragOver(event)" 
+                         ondrop="handleItemDrop(event)"
+                         ontouchmove="handleItemMobileTouchMove(event)"
+                         ontouchend="handleItemMobileTouchEnd(event)">
+                        
                         {% for item in collection['items'] %}
-                        <div class="col-md-4">
-                            <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between position-relative inner-item-card" draggable="false">
+                        <!-- CHANGED: Trackable outer grid cell for sort metrics -->
+                        <div class="col-md-4 sortable-item-wrapper" data-item-id="{{ item.id }}">
+                            <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between position-relative inner-item-card">
                                 <div>
-                                    <div class="d-flex justify-content-between align-items-center mb-2 pe-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pe-5">
                                         <span class="badge bg-dark text-capitalize" style="font-size: 0.7rem; font-weight: 500;">{{ item.category }}</span>
                                         <span class="text-muted small text-capitalize" style="font-size: 0.72rem;">{{ item.subcategory }}</span>
                                     </div>
-                                    <h6 class="fw-bold m-0 mb-1 text-dark text-truncate pe-4" title="{{ item.title }}">{{ item.title }}</h6>
+                                    <h6 class="fw-bold m-0 mb-1 text-dark text-truncate pe-5" title="{{ item.title }}">{{ item.title }}</h6>
                                     <p class="text-muted small m-0 mb-2" style="line-height: 1.4; font-size: 0.82rem;">{{ item.description }}</p>
                                 </div>
+
+                                <!-- NEW: Inner Item Handle Control Layer -->
+                                <button class="btn btn-sm btn-light border rounded d-flex align-items-center justify-content-center p-0 position-absolute top-0 end-0 mt-2 me-2 drag-handle-button item-drag-handle" 
+                                        style="width: 24px; height: 24px; cursor: grab; touch-action: none; z-index: 5;" 
+                                        title="Drag to Reorder Item"
+                                        draggable="true"
+                                        ondragstart="handleItemDragStart(event)"
+                                        ondragend="handleItemDragEnd(event)"
+                                        ontouchstart="handleItemMobileTouchStart(event)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                    </svg>
+                                </button>
 
                                 {% if item.url and item.url != '#' %}
                                     {% if collection.is_video %}
@@ -118,7 +138,8 @@
                                             {% endif %}
                                         </div>
                                     {% else %}
-                                        <a href="{{ item.url }}" target="_blank" class="position-absolute top-0 end-0 mt-2 me-2 btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm inner-link-btn" style="width: 26px; height: 26px;" title="Open Target External Link">
+                                        <!-- Adjusted top styling layout position matrices to clean up spacing alongside handles -->
+                                        <a href="{{ item.url }}" target="_blank" class="position-absolute bottom-0 end-0 mb-2 me-2 btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm inner-link-btn" style="width: 24px; height: 24px;" title="Open Target External Link">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" class="text-secondary" viewBox="0 0 16 16">
                                                 <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5-.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
                                                 <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
@@ -129,8 +150,8 @@
                             </div>
                         </div>
                         {% else %}
-                        <div class="col-12">
-                            <p class="text-muted small m-0 text-center py-3 bg-light rounded border border-dashed">No items are currently mapped into this bundle layout structure.</p>
+                        <div class="col-12 text-center py-3 bg-light rounded border border-dashed sorting-empty-fallback">
+                            <p class="text-muted small m-0">No items are currently mapped into this bundle layout structure.</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -365,7 +386,6 @@
     let dragSourceCard = null;
 
     function handleCollectionDragStart(e) {
-        // Find the outer row relative to the button handle being gripped
         dragSourceCard = e.target.closest('.filterable-collection-row');
         if (dragSourceCard) {
             if (e.dataTransfer) {
@@ -392,7 +412,6 @@
         dragSourceCard = null;
     }
 
-    // Mobile touch handling layers
     function handleMobileTouchStart(e) {
         dragSourceCard = e.target.closest('.filterable-collection-row');
         if (dragSourceCard) {
@@ -402,8 +421,6 @@
 
     function handleMobileTouchMove(e) {
         if (!dragSourceCard) return;
-        
-        // Only block browser scrolling if the user is actively targeting the touch handle button
         e.preventDefault();
         
         const touchLocation = e.touches[0];
@@ -456,6 +473,117 @@
             if (!res.ok) console.error("Could not persist updated layout position matrices.");
         })
         .catch(err => console.error("Network communication exception encountered syncing card positions:", err));
+    }
+
+
+    // --- NEW: NESTED INNER ITEM DRAG ENGINE ---
+    let dragSourceItem = null;
+
+    function handleItemDragStart(e) {
+        dragSourceItem = e.target.closest('.sortable-item-wrapper');
+        if (dragSourceItem) {
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+            }
+            setTimeout(() => dragSourceItem.style.opacity = '0.4', 0);
+        }
+    }
+
+    function allowItemDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleItemDrop(e) {
+        e.preventDefault();
+        const targetItem = e.target.closest('.sortable-item-wrapper');
+        const targetContainer = e.target.closest('.items-grid-container');
+        executeItemDOMReorder(targetItem, targetContainer, e.clientX);
+    }
+
+    function handleItemDragEnd(e) {
+        if (dragSourceItem) dragSourceItem.style.opacity = '1';
+        dragSourceItem = null;
+    }
+
+    function handleItemMobileTouchStart(e) {
+        dragSourceItem = e.target.closest('.sortable-item-wrapper');
+        if (dragSourceItem) {
+            dragSourceItem.style.opacity = '0.5';
+        }
+    }
+
+    function handleItemMobileTouchMove(e) {
+        if (!dragSourceItem) return;
+        e.preventDefault(); // Prevents layout scroll interactions during handle drag tracking loop
+        
+        const touchLocation = e.touches[0];
+        const targetElement = document.elementFromPoint(touchLocation.clientX, touchLocation.clientY);
+        if (!targetElement) return;
+
+        const targetItem = targetElement.closest('.sortable-item-wrapper');
+        const targetContainer = targetElement.closest('.items-grid-container');
+        
+        if (targetContainer) {
+            executeItemDOMReorder(targetItem, targetContainer, touchLocation.clientX);
+        }
+    }
+
+    function handleItemMobileTouchEnd(e) {
+        if (dragSourceItem) {
+            const targetContainer = dragSourceItem.closest('.items-grid-container');
+            dragSourceItem.style.opacity = '1';
+            if (targetContainer) {
+                saveUpdatedItemSequence(targetContainer);
+            }
+        }
+        dragSourceItem = null;
+    }
+
+    function executeItemDOMReorder(targetItem, targetContainer, clientX) {
+        if (!dragSourceItem || !targetContainer) return;
+
+        // Ensure item sorting remains isolated strictly inside its original parent container layout row channel
+        const sourceContainer = dragSourceItem.closest('.items-grid-container');
+        if (sourceContainer !== targetContainer) return;
+
+        if (targetItem && targetItem !== dragSourceItem) {
+            const bounding = targetItem.getBoundingClientRect();
+            const offset = clientX - bounding.left;
+            
+            // Check if pointer position crosses horizontal center axis grid bounds 
+            if (offset > bounding.width / 2) {
+                targetItem.after(dragSourceItem);
+            } else {
+                targetItem.before(dragSourceItem);
+            }
+            
+            if (window.event && window.event.type === 'drop') {
+                saveUpdatedItemSequence(targetContainer);
+            }
+        }
+    }
+
+    function saveUpdatedItemSequence(containerElement) {
+        const collectionId = containerElement.getAttribute('data-collection-id');
+        const currentItems = containerElement.querySelectorAll('.sortable-item-wrapper');
+        const orderedItemIds = Array.from(currentItems).map(item => item.getAttribute('data-item-id')).filter(id => id);
+        
+        const collectionKey = "{{ collection_key }}";
+        const moduleAppName = "{{ request.blueprint }}".replace('_app', '');
+        
+        // Note: Ensure your backend endpoint handles item reordering for a specific collection ID
+        fetch(`/${moduleAppName}/collection/${collectionKey}/items/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                collection_id: collectionId,
+                ordered_item_ids: orderedItemIds 
+            })
+        })
+        .then(res => {
+            if (!res.ok) console.error("Could not persist updated nested item position structures.");
+        })
+        .catch(err => console.error("Network communication exception encountered syncing item positions:", err));
     }
 </script>
 {% endblock %}

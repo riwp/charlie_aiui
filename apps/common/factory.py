@@ -1,11 +1,15 @@
-from flask import Blueprint, redirect, url_for
+from flask import Blueprint, redirect, url_for, request, jsonify
+from apps.common.config import load_app_json_config, get_json_data_path, load_json_file, save_json_file
+import json
+import os
 from apps.common.config import load_app_json_config
 from apps.common.lists import handle_generic_list, handle_edit_item, handle_delete_item
 from apps.common.collections import (
     handle_generic_collection, 
     handle_edit_collection, 
     handle_delete_collection, 
-    handle_reorder_collection
+    handle_reorder_collection,
+    handle_reorder_collection_items  # Added our new item-level reorder logic helper
 )
 from apps.common.notes import handle_generic_note
 
@@ -43,6 +47,65 @@ def create_app_blueprint(app_name, default_module_key='items'):
         if not conf: 
             return redirect('/')
         return handle_generic_list(module_key, conf, f"{blueprint_id}.generic_list_view")
+
+    @blueprint.route('/page/<module_key>/reorder', methods=['POST'], strict_slashes=False)
+    @blueprint.route('/page/<module_key>/reorder/', methods=['POST'], strict_slashes=False)
+    def reorder_list_items_view(module_key):
+        print(f"💥 HIT DETECTED! Module: {module_key} | App: {app_name}")
+        
+        cfg = load_app_json_config(app_name)
+        conf = cfg.get("MODULE_PAGES", {}).get(module_key)
+        if not conf:
+            print(f"❌ CONFIG ERROR: Could not find '{module_key}' inside MODULE_PAGES configuration dictionary.")
+            return jsonify({"status": "error", "message": "Configuration mismatch profiles."}), 404
+            
+        raw_filename = conf.get('data_file') or conf.get('db_file')
+        if not raw_filename:
+            print(f"❌ CONFIG ERROR: Missing 'data_file' or 'db_file' key entry for module '{module_key}'.")
+            return jsonify({"status": "error", "message": "No data file string found in config."}), 404
+
+        # Route path directly using config.py logic helper
+        data_file_path = get_json_data_path(raw_filename)
+        print(f"🔍 DEBUG PATH ANALYSIS: Python is looking for your file at:\n👉 {data_file_path}")
+        
+        if not os.path.exists(data_file_path):
+            print(f"❌ DISK FILE MISSING: File does not exist at the resolved absolute path above.")
+            return jsonify({"status": "error", "message": f"Target data storage file missing at: {raw_filename}"}), 404
+
+        # Parse request payload from SortableJS client
+        payload = request.get_json() or {}
+        ordered_ids = payload.get('order', [])
+        if not ordered_ids:
+            return jsonify({"status": "error", "message": "No item sort order layout array provided."}), 400
+
+        try:
+            # Read items using existing config functions
+            items = load_json_file(raw_filename)
+            
+            # Map items by their string ID representation for fast lookup sorting
+            items_by_id = {str(item.get('id')): item for item in items if item.get('id') is not None}
+            
+            reordered_list = []
+            # Place items matching the new Sortable sequence layout arrays
+            for item_id in ordered_ids:
+                str_id = str(item_id)
+                if str_id in items_by_id:
+                    reordered_list.append(items_by_id[str_id])
+            
+            # Catch items that might not have been in the DOM/Sortable array payload context
+            for item in items:
+                if str(item.get('id')) not in ordered_ids:
+                    reordered_list.append(item)
+                    
+            # Write structured array securely back to the core json directory location
+            save_json_file(raw_filename, reordered_list)
+            print(f"✨ SUCCESS: List elements reordered and saved for module '{module_key}'!")
+            
+            return jsonify({"status": "success", "message": "Items reordered successfully."})
+            
+        except Exception as e:
+            print(f"❌ WRITE ERROR: Could not reorder items payload correctly. Details: {str(e)}")
+            return jsonify({"status": "error", "message": f"Server failed to write update: {str(e)}"}), 500        
 
     @blueprint.route('/page/<module_key>/edit', methods=['POST'])
     def edit_list_item_view(module_key):
@@ -87,11 +150,21 @@ def create_app_blueprint(app_name, default_module_key='items'):
 
     @blueprint.route('/collection/<collection_key>/reorder', methods=['POST'])
     def reorder_collection_view(collection_key):
+        """ Handles shifting the sorting arrangement of entire parent collections arrays """
         cfg = load_app_json_config(app_name)
         conf = cfg.get("COLLECTION_PAGES", {}).get(collection_key)
         if not conf:
             return {"status": "error", "message": "Configuration mismatch profiles."}, 404
         return handle_reorder_collection(collection_key, conf)
+
+    @blueprint.route('/collection/<collection_key>/items/reorder', methods=['POST'])
+    def reorder_collection_items_view(collection_key):
+        """ Handles dragging / saving individual internal items inside a collection block """
+        cfg = load_app_json_config(app_name)
+        conf = cfg.get("COLLECTION_PAGES", {}).get(collection_key)
+        if not conf:
+            return {"status": "error", "message": "Configuration mismatch profiles."}, 404
+        return handle_reorder_collection_items(collection_key, conf)
 
     @blueprint.route('/manage/<pagetype>', methods=['GET', 'POST'])
     def manage_notes_view(pagetype):

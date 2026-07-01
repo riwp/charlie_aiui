@@ -23,13 +23,23 @@
            onkeyup="executeLiveSearchSearch()">
 </div>
 
-<div class="row g-3" id="listDataGrid">
+<!-- Added data-module attribute to target dynamic blueprint endpoint saves safely -->
+<div class="row g-3" id="listDataGrid" data-module="{{ module_key }}">
     {% for item in items_list %}
+    <!-- Added data-id attribute to track sequence placement arrays in SortableJS -->
     <div class="col-md-4 filterable-item-card" 
+         data-id="{{ item.id }}"
          data-search-content="{{ item.title | lower }} {{ item.description | lower }} {{ item.category | lower }} {{ item.subcategory | lower }}">
         <div class="card h-100 border-top border-3 border-{{ conf.accent_color or 'primary' }} bg-white position-relative dashboard-card">
             
             <div class="position-absolute top-0 end-0 mt-2 me-2 d-flex gap-1" style="z-index: 10;">
+                <!-- Drag Handle Trigger Icon Button Component -->
+                <div class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm list-drag-handle action-circle-btn" style="width: 30px; height: 30px; cursor: move;" title="Drag to Reorder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM5 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                </div>
+
                 {% if item.url and item.url != '#' and not item.is_video and conf.title != "Boxing Videos" %}
                 <a href="{{ item.url }}" target="_blank" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm action-circle-btn" style="width: 30px; height: 30px;" title="Open Source Link">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="text-secondary" viewBox="0 0 16 16">
@@ -64,14 +74,14 @@
                 </div>
             </div>
 
-            <div class="card-body d-flex flex-column justify-content-between">
+            <div class="card-body d-flex flex-column justify-content-between pt-4">
                 <div>
-                    <div class="d-flex justify-content-between align-items-center mb-2 pe-5 flex-wrap gap-1">
+                    <!-- Added me-4 buffer space alongside pe-5 to structurally clear the upper action icon container area -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 pe-5 me-4 flex-wrap gap-1">
                         <span class="badge bg-light text-dark border text-capitalize">{{ item.category }}</span>
                         <span class="small text-muted text-capitalize" style="font-size: 0.75rem;">{{ item.subcategory }}</span>
                     </div>
                     <h5 class="fw-bold text-dark mb-2 pe-5 text-truncate-custom" title="{{ item.title }}">{{ item.title }}</h5>
-                    <!-- Added white-space: pre-line style flag here to cleanly process layout newline inputs -->
                     <p class="text-muted small m-0" style="line-height: 1.45; font-size: 0.85rem; white-space: pre-line;">{{ item.description }}</p>
                 </div>
 
@@ -84,6 +94,7 @@
         </div>
     </div>
 
+    <!-- Edit Modal Block -->
     <div class="modal fade" id="editModal{{ item.id }}" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -150,6 +161,7 @@
     </div>
 </div>
 
+<!-- Add Item Modal -->
 <div class="modal fade" id="addItemModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -227,7 +239,15 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
         outline: 0;
     }
+    /* Dim layout slightly during dragging operations */
+    .sortable-chosen .dashboard-card {
+        background-color: #f8f9fa !important;
+        opacity: 0.75;
+    }
 </style>
+
+<!-- Injected CDN script handling for SortableJS Drag-and-drop support wrapper mechanics -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
 <script>
     function executeLiveSearchSearch() {
@@ -246,12 +266,57 @@
             }
         });
 
-        // Toggle the "No entries match" notification screen smoothly
         if (visibleCount === 0 && cards.length > 0) {
             fallback.classList.remove('d-none');
         } else {
             fallback.classList.add('d-none');
         }
     }
+
+    // Initialize Sortable engine tracking logic
+    document.addEventListener("DOMContentLoaded", function() {
+        const gridContainer = document.getElementById('listDataGrid');
+        if (!gridContainer) return;
+
+        const moduleKey = gridContainer.getAttribute('data-module');
+        
+        // Dynamically extract your application blueprint context from the absolute path string
+        const appPathPrefix = window.location.pathname.split('/')[1];
+
+        new Sortable(gridContainer, {
+            handle: '.list-drag-handle', // Scopes action to our handle button indicator element
+            animation: 180,
+            ghostClass: 'sortable-ghost',
+            onEnd: function() {
+                // Collect the new ID ordering sequence array from data-id attributes
+                const itemCards = gridContainer.querySelectorAll('.filterable-item-card');
+                const orderedIds = Array.from(itemCards).map(card => card.getAttribute('data-id'));
+
+                // Build explicit absolute endpoint path targeting the new factory.py handler structure
+                const destinationUrl = `/${appPathPrefix}/page/${moduleKey}/reorder`;
+
+                // Fire fetch callback upstream into your backend controller endpoint
+                fetch(destinationUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ order: orderedIds })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error(`Server returned error status code: ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.status !== 'success') {
+                        console.error('Reordering sequence sync update error:', data.message);
+                    } else {
+                        console.log('Sequence saved to JSON data storage successfully.');
+                    }
+                })
+                .catch(err => console.error('Network sync failure updating sort layout context:', err));
+            }
+        });
+    });
 </script>
 {% endblock %}

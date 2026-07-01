@@ -3,6 +3,23 @@ import importlib
 from flask import Flask, render_template
 from apps.common.config import load_global_config
 
+
+def debug_display_route_info(app):
+    print("--- REGISTERED FLASK ROUTES ---")
+    for rule in app.url_map.iter_rules():
+        print(f"Path: {rule.rule} -> Endpoint: {rule.endpoint}")
+    print("--------------------------------")
+
+def debug_display_additional_info(app):
+    # Place this right before app.run() or at the bottom of your main file
+    with app.app_context():
+        print("\n🔍 --- SHOWING ALL DYNAMIC BLUEPRINT ROUTES ---")
+        for rule in app.url_map.iter_rules():
+            if 'reorder' in str(rule):
+                print(f"👉 MATCH FOUND: {rule.endpoint} | Path: {rule} | Methods: {list(rule.methods)}")
+        print("-----------------------------------------------\n")
+
+
 def create_app():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     template_dir = os.path.join(base_dir, 'templates')
@@ -32,6 +49,10 @@ def create_app():
             print(f"✅ Successfully registered blueprint: {blueprint_var_name} from {module_name}")
         except Exception as e:
             print(f"⚠️ Warning: Could not auto-register blueprint for folder '{url_route}': {e}")
+
+    #debug_display_route_info(app)
+    debug_display_additional_info(app)
+
 
     @app.context_processor
     def inject_navigation_utilities():
