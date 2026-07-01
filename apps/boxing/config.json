@@ -3,11 +3,11 @@
     "INDEX_TITLE": "Boxing & Training Home",
     "INDEX_DESCRIPTION": "Select a module below to save drills, build workouts, define goals, and track progress.",
     "NAV_LINKS": [
-        {"name": "Drills", "url": "/boxing/page/drills"},
-        {"name": "Workouts", "url": "/boxing/collection/workouts"},
-        {"name": "Videos", "url": "/boxing/page/videos"},
-        {"name": "Progress", "url": "/boxing/manage/progress"},
-        {"name": "Goals", "url": "/boxing/manage/goals"}
+        {"name": "Drills", "url": "/page/drills"},
+        {"name": "Workouts", "url": "/collection/workouts"},
+        {"name": "Videos", "url": "/page/videos"},
+        {"name": "Progress", "url": "/manage/progress"},
+        {"name": "Goals", "url": "/manage/goals"}
     ],
     "MODULE_PAGES": {
         "drills": {

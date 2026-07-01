@@ -3,8 +3,8 @@
     "INDEX_TITLE": "Stretching Home",
     "INDEX_DESCRIPTION": "Select a module below to create stretching sessions and routines.",
     "NAV_LINKS": [
-        {"name": "Stretching", "url": "/stretching/page/stretching"},
-        {"name": "Routines", "url": "/stretching/collection/routines"}
+        {"name": "Stretching", "url": "/page/stretching"},
+        {"name": "Routines", "url": "/collection/routines"}
     ],
     "MODULE_PAGES": {
         "stretching": {

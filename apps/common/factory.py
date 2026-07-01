@@ -19,7 +19,18 @@ def create_app_blueprint(app_name, default_module_key='items'):
     @blueprint.context_processor
     def inject_context():
         cfg = load_app_json_config(app_name)
-        return dict(nav_links=cfg.get("NAV_LINKS", []), app_title=cfg.get("APP_TITLE"))
+        raw_nav_links = cfg.get("NAV_LINKS", [])
+        
+        # Automatically insert the app directory name into your navigation URLs
+        dynamic_nav_links = []
+        for link in raw_nav_links:
+            raw_url = link.get("url", "").lstrip('/')  # Strips any stray leading slashes
+            dynamic_nav_links.append({
+                "name": link.get("name"),
+                "url": f"/{app_name}/{raw_url}"        # Formats safely as: /charlie/page/cm_page
+            })
+
+        return dict(nav_links=dynamic_nav_links, app_title=cfg.get("APP_TITLE"))
 
     @blueprint.route('/')
     def home():

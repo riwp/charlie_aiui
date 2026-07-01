@@ -1,13 +1,11 @@
 import os
 import re
+import sys
 import uuid
 import time
 import glob
 import subprocess
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for
-
-# --- MASTER ROUTING CONFIGURATION ---
-#URL_PREFIX = "ai"  # Change this single variable to change paths, config loads, and routing keys
 
 # --- MASTER ROUTING CONFIGURATION ---
 # Dynamically extracts the current folder name (e.g., "ai") to manage paths, config loads, and routes
@@ -21,8 +19,14 @@ from apps.common.lists import handle_generic_list
 # --- Custom Engine Heavy Workers ---
 from apps.common import gemini_bot, fetch_html
 
-# Instantiate blueprint with absolute workspace prefix mapping safely wrapped with a leading slash
-ai_blueprint = Blueprint('ai_blueprint', __name__, url_prefix=f"/{URL_PREFIX}")
+# --- DYNAMIC BLUEPRINT INSTANTIATION ---
+# Dynamically name and inject the blueprint object (e.g., ai_blueprint) into sys.modules
+generated_blueprint = Blueprint(f'{URL_PREFIX}_blueprint', __name__, url_prefix=f"/{URL_PREFIX}")
+target_variable_name = f"{URL_PREFIX}_blueprint"
+setattr(sys.modules[__name__], target_variable_name, generated_blueprint)
+
+# Alias it locally so the rest of the file's existing decorators work flawlessly without modifications
+ai_blueprint = generated_blueprint
 
 # --- CONFIGURATION CONSTANTS & DIRECTORIES ---
 FILE_CATEGORIES = {
@@ -97,7 +101,7 @@ def get_prompt_text_md(filename):
 # --- CORE STRUCTURAL ROUTING WORKSPACE ---
 @ai_blueprint.route('/')
 def home():
-    return redirect(url_for('ai_blueprint.generic_list_view', module_key=f'{URL_PREFIX}_summarization'))
+    return redirect(url_for(f'{URL_PREFIX}_blueprint.generic_list_view', module_key=f'{URL_PREFIX}_summarization'))
 
 # FIX: Map nested file lists to folder items before parsing payload downstream arrays
 @ai_blueprint.route(f'/page/{URL_PREFIX}_savedfiles')
@@ -124,10 +128,10 @@ def ai_explorer():
 @ai_blueprint.route('/page/<module_key>', methods=['GET', 'POST'])
 def generic_list_view(module_key):
     if module_key == f"{URL_PREFIX}_savedfiles": 
-        return redirect(url_for('ai_blueprint.ai_savedfiles'))
+        return redirect(url_for(f'{URL_PREFIX}_blueprint.ai_savedfiles'))
         
     if module_key == f"{URL_PREFIX}_explorer": 
-        return redirect(url_for('ai_blueprint.ai_explorer', category=request.args.get('category', '')))
+        return redirect(url_for(f'{URL_PREFIX}_blueprint.ai_explorer', category=request.args.get('category', '')))
     
     cfg = load_app_json_config(URL_PREFIX)
     conf = cfg.get("MODULE_PAGES", {}).get(module_key, {})
@@ -143,7 +147,7 @@ def generic_list_view(module_key):
     if module_key == f"{URL_PREFIX}_summarization":
         return render_template(f"{URL_PREFIX}_summarization.html", conf=conf, patterns=patterns, default_pattern="summarize", categories=categories)
         
-    return handle_generic_list(module_key, conf, 'ai_blueprint.generic_list_view')
+    return handle_generic_list(module_key, conf, f'{URL_PREFIX}_blueprint.generic_list_view')
 
 
 # --- HIGH-PERFORMANCE SERVICE HOOK ENDPOINTS ---
