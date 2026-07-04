@@ -33,7 +33,7 @@
         "workouts": {
             "title": "Manage Workouts",
             "description": "Put together combinations of drills to have ready to go workouts.",
-            "db_file": "workouts.json",
+            "db_file": "boxing_workouts.json",
             "source_module": "drills",
             "accent_color": "danger",
             "form_button_text": "Build Workout",

@@ -70,5 +70,14 @@
         "description": "Load fundamental stretch to get solits",
         "url": "https://www.instagram.com/reel/DZtoggjR2wO/?igsh=MXh0NGQxbXBpbmtwaw==",
         "is_video": false
+    },
+    {
+        "id": "a6e8ca81-3ff5-4099-a690-b6ca22fdfbdc",
+        "category": "Favorites",
+        "subcategory": "Mobility",
+        "title": "Mobility movement",
+        "description": "Hip mobility movement",
+        "url": "https://www.instagram.com/reel/DZs8ZFQhfvF/?igsh=MTUxMnBja2t6NWtzaw==",
+        "is_video": false
     }
 ]

@@ -1,5 +1,14 @@
 [
     {
+        "id": "e44d320b-0487-4b72-a745-f938f323b6b1",
+        "title": "Cut Ring",
+        "category": "Boxing",
+        "subcategory": "Footwork",
+        "url": "https://www.youtube.com/embed/Po3Dwu1Bb30",
+        "description": "Updated Cut Ring",
+        "is_video": false
+    },
+    {
         "id": "c1f7743d-0d85-4ae2-a279-05dca0f7ba05",
         "title": "Head movement patterns",
         "category": "Boxing",
@@ -15,15 +24,6 @@
         "subcategory": "Bag Work",
         "url": "https://www.instagram.com/reel/DUCxgY6EZ3b/?igsh=MXNqaHUzZGh2MnhsZQ==",
         "description": "Defense and Counters",
-        "is_video": false
-    },
-    {
-        "id": "e44d320b-0487-4b72-a745-f938f323b6b1",
-        "title": "Cut Ring",
-        "category": "Boxing",
-        "subcategory": "Footwork",
-        "url": "https://www.youtube.com/embed/Po3Dwu1Bb30",
-        "description": "Updated Cut Ring",
         "is_video": false
     },
     {
@@ -402,6 +402,15 @@
         "title": "Sparring endurance",
         "description": "Rest elbows on ribs, relax shoulders, short bursts of energy and then walk, relax. Drills and sparring",
         "url": "https://youtu.be/1EJkmGAUxW0?is=7nqYwF3OBW2RaNiw",
+        "is_video": false
+    },
+    {
+        "id": "7a8e3895-0916-4db4-b15b-a8ab23823258",
+        "category": "Favorites",
+        "subcategory": "Combos",
+        "title": "Dutch Kickbox Variations",
+        "description": "1-2-3B base; RL Leg; L Liver; L head",
+        "url": "https://youtu.be/bxaT9rXYBlw?is=dhx7vOod9kYBp-X2",
         "is_video": false
     }
 ]

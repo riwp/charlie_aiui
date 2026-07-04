@@ -1,0 +1,13 @@
+{
+    "APP_TITLE": "Admin Home",
+    "NAV_LINKS": [
+        {"name": "Admin", "url": ""}
+    ],
+    "MODULE_PAGES": {
+        "admin": {
+            "title": "Admin",
+            "description": "Administer applications.",
+            "accent_color": "dark"
+        }
+    }
+}

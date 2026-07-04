@@ -1,5 +1,5 @@
-from flask import Blueprint, redirect, url_for, request, jsonify
-from apps.common.config import load_app_json_config, get_json_data_path, load_json_file, save_json_file
+from flask import Blueprint, redirect, url_for, request, jsonify, render_template
+from apps.common.config import get_json_data_path, load_json_file, save_json_file
 import json
 import os
 from apps.common.config import load_app_json_config
@@ -9,7 +9,7 @@ from apps.common.collections import (
     handle_edit_collection, 
     handle_delete_collection, 
     handle_reorder_collection,
-    handle_reorder_collection_items  # Added our new item-level reorder logic helper
+    handle_reorder_collection_items
 )
 from apps.common.notes import handle_generic_note
 
@@ -25,13 +25,12 @@ def create_app_blueprint(app_name, default_module_key='items'):
         cfg = load_app_json_config(app_name)
         raw_nav_links = cfg.get("NAV_LINKS", [])
         
-        # Automatically insert the app directory name into your navigation URLs
         dynamic_nav_links = []
         for link in raw_nav_links:
-            raw_url = link.get("url", "").lstrip('/')  # Strips any stray leading slashes
+            raw_url = link.get("url", "").lstrip('/')
             dynamic_nav_links.append({
                 "name": link.get("name"),
-                "url": f"/{app_name}/{raw_url}"        # Formats safely as: /charlie/page/cm_page
+                "url": f"/{app_name}/{raw_url}"
             })
 
         return dict(nav_links=dynamic_nav_links, app_title=cfg.get("APP_TITLE"))
@@ -46,6 +45,14 @@ def create_app_blueprint(app_name, default_module_key='items'):
         conf = cfg.get("MODULE_PAGES", {}).get(module_key)
         if not conf: 
             return redirect('/')
+            
+        # --- FIXED FORWARD SAFETY LAYER ---
+        # If the page configuration does not point to an internal JSON database backing matrix,
+        # fallback cleanly to rendering a custom template matching the target page key entry name.
+        if "db_file" not in conf and "data_file" not in conf:
+            # This handles custom templates like admin.html natively while remaining 100% generic
+            return render_template(f"{module_key}.html", conf=conf)
+            
         return handle_generic_list(module_key, conf, f"{blueprint_id}.generic_list_view")
 
     @blueprint.route('/page/<module_key>/reorder', methods=['POST'], strict_slashes=False)
@@ -64,7 +71,6 @@ def create_app_blueprint(app_name, default_module_key='items'):
             print(f"❌ CONFIG ERROR: Missing 'data_file' or 'db_file' key entry for module '{module_key}'.")
             return jsonify({"status": "error", "message": "No data file string found in config."}), 404
 
-        # Route path directly using config.py logic helper
         data_file_path = get_json_data_path(raw_filename)
         print(f"🔍 DEBUG PATH ANALYSIS: Python is looking for your file at:\n👉 {data_file_path}")
         
@@ -72,32 +78,25 @@ def create_app_blueprint(app_name, default_module_key='items'):
             print(f"❌ DISK FILE MISSING: File does not exist at the resolved absolute path above.")
             return jsonify({"status": "error", "message": f"Target data storage file missing at: {raw_filename}"}), 404
 
-        # Parse request payload from SortableJS client
         payload = request.get_json() or {}
         ordered_ids = payload.get('order', [])
         if not ordered_ids:
             return jsonify({"status": "error", "message": "No item sort order layout array provided."}), 400
 
         try:
-            # Read items using existing config functions
             items = load_json_file(raw_filename)
-            
-            # Map items by their string ID representation for fast lookup sorting
             items_by_id = {str(item.get('id')): item for item in items if item.get('id') is not None}
             
             reordered_list = []
-            # Place items matching the new Sortable sequence layout arrays
             for item_id in ordered_ids:
                 str_id = str(item_id)
                 if str_id in items_by_id:
                     reordered_list.append(items_by_id[str_id])
             
-            # Catch items that might not have been in the DOM/Sortable array payload context
             for item in items:
                 if str(item.get('id')) not in ordered_ids:
                     reordered_list.append(item)
                     
-            # Write structured array securely back to the core json directory location
             save_json_file(raw_filename, reordered_list)
             print(f"✨ SUCCESS: List elements reordered and saved for module '{module_key}'!")
             
@@ -150,7 +149,6 @@ def create_app_blueprint(app_name, default_module_key='items'):
 
     @blueprint.route('/collection/<collection_key>/reorder', methods=['POST'])
     def reorder_collection_view(collection_key):
-        """ Handles shifting the sorting arrangement of entire parent collections arrays """
         cfg = load_app_json_config(app_name)
         conf = cfg.get("COLLECTION_PAGES", {}).get(collection_key)
         if not conf:
@@ -159,7 +157,6 @@ def create_app_blueprint(app_name, default_module_key='items'):
 
     @blueprint.route('/collection/<collection_key>/items/reorder', methods=['POST'])
     def reorder_collection_items_view(collection_key):
-        """ Handles dragging / saving individual internal items inside a collection block """
         cfg = load_app_json_config(app_name)
         conf = cfg.get("COLLECTION_PAGES", {}).get(collection_key)
         if not conf:

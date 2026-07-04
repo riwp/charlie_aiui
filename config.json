@@ -1,44 +1,73 @@
 {
     "APP_TITLE": "Charlie Home",
-    "INDEX_TITLE": "Charlie's Workspace",
-    "INDEX_DESCRIPTION": "Select an application below to launch.",
-    "NAV_LINKS": [
-        {"name": "Recipes", "url": "/recipe"},
-        {"name": "Boxing", "url": "/boxing"},
-        {"name": "Stretching", "url": "/stretching"},
-        {"name": "AI", "url": "/ai"}, 
-        {"name": "Dance", "url": "/dance"}
-    ],
     "DASHBOARD_CARDS": [
         {
-            "title": "🍔 Recipe's & Cookbooks", 
-            "description": "Save recipes, create cookbooks and more.", 
-            "url": "/recipe", 
-            "color": "success"
+            "color": "primary",
+            "description": "Save drills, organize into workouts and more.",
+            "title": "\ud83e\udd4a Boxing Drills & Workouts",
+            "url": "/boxing"
         },
         {
-            "title": "🥊 Boxing Drills & Workouts", 
-            "description": "Save drills, organize into workouts and more.", 
-            "url": "/boxing", 
-            "color": "primary"
+            "color": "primary",
+            "description": "build workouts",
+            "title": "Workouts",
+            "url": "/workouts"
         },
         {
-            "title": "🧘 Stretching & Mobility", 
-            "description": "Save your favorite stretches, organize into routines and more.", 
-            "url": "/stretching", 
-            "color": "success"
+            "color": "success",
+            "description": "Save your favorite stretches, organize into routines and more.",
+            "title": "\ud83e\uddd8 Stretching & Mobility",
+            "url": "/stretching"
         },
         {
-            "title": "⚡ AI Workspace", 
-            "description": "Execute prompts, summarize content, and save/search summaries.", 
-            "url": "/ai", 
-            "color": "dark"
+            "color": "dark",
+            "description": "Execute prompts, summarize content, and save/search summaries.",
+            "title": "\u26a1 AI Workspace",
+            "url": "/ai"
         },
         {
-            "title": "💃 Dance", 
-            "description": "Add your favorite dance, search and more.", 
-            "url": "/dance", 
-            "color": "success"
+            "color": "success",
+            "description": "Add your favorite dance, search and more.",
+            "title": "\ud83d\udc83 Dance",
+            "url": "/dance"
+        },
+        {
+            "color": "success",
+            "description": "Save recipes, create cookbooks and more.",
+            "title": "\ud83c\udf54 Recipe's & Cookbooks",
+            "url": "/recipe"
+        }
+    ],
+    "INDEX_DESCRIPTION": "Select an application below to launch.",
+    "INDEX_TITLE": "Charlie's Workspace",
+    "NAV_LINKS": [
+        {
+            "name": "Boxing",
+            "url": "/boxing"
+        },
+        {
+            "name": "Stretching",
+            "url": "/stretching"
+        },
+        {
+            "name": "AI",
+            "url": "/ai"
+        },
+        {
+            "name": "Dance",
+            "url": "/dance"
+        },
+        {
+            "name": "Recipes",
+            "url": "/recipe"
+        },
+        {
+            "name": "Workouts",
+            "url": "/workouts"
+        },
+        {
+            "name": "Admin",
+            "url": "/admin"
         }
     ]
 }

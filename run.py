@@ -8,8 +8,3 @@ if __name__ == '__main__':
     port_num = int(os.getenv("PORT", 5072))
     debug_state = os.getenv("FLASK_DEBUG") == "1" or True
     app.run(host=host_ip, port=port_num, debug=debug_state)
-
-    print("--- REGISTERED FLASK ROUTES ---")
-    for rule in app.url_map.iter_rules():
-        print(f"Path: {rule.rule} -> Endpoint: {rule.endpoint}")
-    print("--------------------------------")
