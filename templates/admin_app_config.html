@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fs-6"><i class="bi bi-folder-fill me-2"></i>Applications</h5>
+                    <button class="btn btn-sm btn-outline-light p-1 line-height-1" onclick="loadAppDirectoryList()" title="Refresh directory tree">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+                <div class="list-group list-group-flush" id="appDirectoryContainer" style="max-height: 70vh; overflow-y: auto;">
+                    <div class="text-center p-3 text-muted">
+                        <div class="spinner-border spinner-border-sm text-secondary mb-2" role="status"></div>
+                        <p class="mb-0 small">Scanning sub-apps...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9 mb-4">
+            <div id="welcomePlaceholder" class="card shadow-sm border-0 text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-sliders text-muted display-4 mb-3"></i>
+                    <h4>Application Configuration Matrix</h4>
+                    <p class="text-muted col-lg-8 mx-auto">Select an available sub-application directory from the sidebar pane to dynamically parse, view, and manipulate its structural runtime `config.json` profile mappings.</p>
+                </div>
+            </div>
+
+            <div id="configEditorWorkspace" class="card shadow-sm border-0 d-none">
+                <div class="card-header bg-light border-bottom d-flex align-items-center justify-content-between py-3">
+                    <div>
+                        <h4 class="mb-0 h5 text-dark font-weight-bold" id="activeAppHeaderTitle">App Workspace Workspace</h4>
+                        <small class="text-muted" id="activeAppSubheadingPath"></small>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success btn-sm px-3" onclick="saveActiveAppConfig()">
+                            <i class="bi bi-cloud-check-fill me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <ul class="nav nav-pills mb-3 border-bottom pb-2" id="editorTabStructure" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active btn-sm" id="visual-editor-tab" data-bs-toggle="pill" data-bs-target="#visualEditorPane" type="button" role="tab">
+                                <i class="bi bi-grid-1x2 me-1"></i> Form Fields View
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link btn-sm" id="raw-editor-tab" data-bs-toggle="pill" data-bs-target="#rawEditorPane" type="button" role="tab" onclick="syncWorkingJsonToTextarea()">
+                                <i class="bi bi-code-slash me-1"></i> Raw Source JSON
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="editorTabContent">
+                        <div class="tab-pane fade show active" id="visualEditorPane" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label font-weight-bold small text-uppercase tracking-wider">Application Header Banner Title</label>
+                                    <input type="text" class="form-control" id="appTitleInput" onchange="updateWorkingStateString('APP_TITLE', this.value)">
+                                </div>
+                                <div class="col-md-12 mt-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label mb-0 font-weight-bold small text-uppercase tracking-wider">Dynamic App Section Node Maps</label>
+                                        <button class="btn btn-xs btn-primary py-1 px-2" onclick="openNodeCreationModal()">
+                                            <i class="bi bi-plus-circle me-1"></i> Add Root Key Section
+                                        </button>
+                                    </div>
+                                    <div class="border rounded bg-light p-3" id="interactiveTreeGridContainer" style="min-height: 200px;">
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="rawEditorPane" role="tabpanel">
+                            <div class="mb-3">
+                                <label class="form-label font-weight-bold small text-uppercase tracking-wider">Direct Configuration Text Editor Matrix</label>
+                                <textarea class="form-control font-monospace text-success bg-dark" id="rawJsonTextarea" rows="18" style="tab-size: 4; font-size: 13px;"></textarea>
+                                <div class="form-text text-danger d-none" id="rawJsonParseValidationErrorAlert">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Invalid JSON array structure payload compiled. Check syntax layout structure.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="nodeStructureCreationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title h6"><i class="bi bi-node-plus-fill me-2"></i>Create New Property Entry</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label small font-weight-bold">Property Element Identifier Key</label>
+                    <input type="text" class="form-control" id="modalNodeKeyField" placeholder="e.g., CUSTOM_PAGE_METRICS">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small font-weight-bold">Structural Blueprint Type</label>
+                    <select class="form-select" id="modalNodeTypeSelector" onchange="toggleModalTypeHintPlaceholder(this.value)">
+                        <option value="string">Text Variable Value (String)</option>
+                        <option value="array">Indexed Collection Matrix (Array)</option>
+                        <option value="object">Nested Property Object Key Map (Object)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Discard</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="commitModalCreatedNodeEntry()">Append Section</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-xs { padding: 0.25rem 0.4rem; font-size: 0.75rem; border-radius: 0.2rem; }
+    .tracking-wider { letter-spacing: 0.05em; }
+    .font-weight-bold { font-weight: 600; }
+    .line-height-1 { line-height: 1; }
+</style>
+
+<script>
+let ACTIVE_APP_NAME = "";
+let WORKING_CONFIG_DATA = {};
+let bootstrapNodeModalRef = null;
+
+document.addEventListener("DOMContentLoaded", function() {
+    bootstrapNodeModalRef = new bootstrap.Modal(document.getElementById('nodeStructureCreationModal'));
+    loadAppDirectoryList();
+});
+
+/**
+ * Hits the administrative auto-discovery engine to retrieve directory paths.
+ */
+function loadAppDirectoryList() {
+    fetch('/admin/api/apps/list')
+        .then(res => res.json())
+        .then(payload => {
+            const container = document.getElementById("appDirectoryContainer");
+            container.innerHTML = "";
+            
+            if (payload.status === "success" && payload.apps.length > 0) {
+                payload.apps.forEach(appName => {
+                    const btn = document.createElement("button");
+                    btn.className = "list-group-item list-group-item-action d-flex align-items-center py-2.5 px-3 border-0 rounded mb-1 text-capitalize";
+                    btn.id = `dir-target-${appName}`;
+                    btn.innerHTML = `<i class="bi bi-box-seam text-secondary me-2.5"></i> <span class="small font-weight-bold">${appName}</span>`;
+                    btn.onclick = () => loadTargetApplicationJsonSchema(appName);
+                    container.appendChild(btn);
+                });
+            } else {
+                container.innerHTML = `<div class="p-3 text-center text-muted small">No target blueprints active</div>`;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("appDirectoryContainer").innerHTML = `<div class="p-3 text-center text-danger small">Scan error occurred</div>`;
+        });
+}
+
+/**
+ * Downloads and mounts an individual configuration file dataset target into memory.
+ */
+function loadTargetApplicationJsonSchema(appName) {
+    ACTIVE_APP_NAME = appName;
+    
+    // Manage sidebar list active highlighted class toggles
+    document.querySelectorAll("#appDirectoryContainer button").forEach(b => b.classList.remove("active", "bg-dark", "text-white"));
+    const selectedBtn = document.getElementById(`dir-target-${appName}`);
+    if (selectedBtn) selectedBtn.classList.add("active", "bg-dark", "text-white");
+
+    fetch(`/admin/api/config/${appName}`)
+        .then(res => {
+            if (!res.ok) throw new Error("File fetch target mismatch parameters.");
+            return res.json();
+        })
+        .then(data => {
+            WORKING_CONFIG_DATA = data;
+            
+            // Swap display states
+            document.getElementById("welcomePlaceholder").classList.add("d-none");
+            document.getElementById("configEditorWorkspace").classList.remove("d-none");
+            
+            // Set heading metrics
+            document.getElementById("activeAppHeaderTitle").innerText = `${appName.toUpperCase()} Configuration Panel`;
+            document.getElementById("activeAppSubheadingPath").innerText = `apps/${appName}/config.json`;
+            
+            document.getElementById("appTitleInput").value = data.APP_TITLE || "";
+            
+            renderInteractiveFormTree();
+        })
+        .catch(err => alert(`Failed parsing configuration workspace layout: ${err.message}`));
+}
+
+/**
+ * Re-compiles changes inside variables or properties safely back down to cache tracking maps.
+ */
+function updateWorkingStateString(key, val) {
+    WORKING_CONFIG_DATA[key] = val;
+}
+
+/**
+ * Builds the interactive tree layout view inside the dashboard canvas dynamically.
+ */
+function renderInteractiveFormTree() {
+    const treeContainer = document.getElementById("interactiveTreeGridContainer");
+    treeContainer.innerHTML = "";
+    
+    // Render loop through system configuration categories
+    Object.keys(WORKING_CONFIG_DATA).forEach(rootKey => {
+        if (rootKey === "APP_TITLE") return; // Rendered individually at top level layout
+        
+        const sectionCard = document.createElement("div");
+        sectionCard.className = "card border shadow-none mb-3 bg-white";
+        
+        const val = WORKING_CONFIG_DATA[rootKey];
+        const valPreviewText = typeof val === 'object' ? `${Array.isArray(val) ? 'Array' : 'Object'} [${Object.keys(val).length} entries]` : String(val);
+        
+        sectionCard.innerHTML = `
+            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
+                <span class="font-monospace font-weight-bold text-primary small">${rootKey}</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary text-white font-monospace p-1" style="font-size:10px;">${valPreviewText}</span>
+                    <button class="btn btn-xs btn-outline-danger p-0 px-1 border-0" onclick="deleteConfigurationRootBranch('${rootKey}')" title="Drop key section tree block">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-3 font-monospace bg-dark text-light rounded-bottom" style="font-size:12px; max-height:260px; overflow-y:auto;">
+                <pre class="mb-0 text-success">${JSON.stringify(val, null, 2)}</pre>
+            </div>
+        `;
+        treeContainer.appendChild(sectionCard);
+    });
+}
+
+function openNodeCreationModal() {
+    document.getElementById("modalNodeKeyField").value = "";
+    bootstrapNodeModalRef.show();
+}
+
+function commitModalCreatedNodeEntry() {
+    const key = document.getElementById("modalNodeKeyField").value.trim().toUpperCase();
+    const type = document.getElementById("modalNodeTypeSelector").value;
+    
+    if (!key) return alert("Property key string cannot be blank.");
+    
+    let defaultPayload = "";
+    if (type === "array") defaultPayload = [];
+    else if (type === "object") defaultPayload = {};
+    
+    WORKING_CONFIG_DATA[key] = defaultPayload;
+    bootstrapNodeModalRef.hide();
+    renderInteractiveFormTree();
+}
+
+function deleteConfigurationRootBranch(key) {
+    if (confirm(`Are you sure you want to drop the entire '${key}' branch structure?`)) {
+        delete WORKING_CONFIG_DATA[key];
+        renderInteractiveFormTree();
+    }
+}
+
+/**
+ * Synchronizes code between JSON state storage maps and raw editor string blocks.
+ */
+function syncWorkingJsonToTextarea() {
+    document.getElementById("rawJsonParseValidationErrorAlert").classList.add("d-none");
+    document.getElementById("rawJsonTextarea").value = JSON.stringify(WORKING_CONFIG_DATA, null, 4);
+}
+
+/**
+ * Uploads local memory modifications back to disc over API gateways.
+ */
+function saveActiveAppConfig() {
+    const isRawActive = document.getElementById("rawEditorPane").classList.contains("show");
+    
+    if (isRawActive) {
+        const rawStr = document.getElementById("rawJsonTextarea").value;
+        try {
+            WORKING_CONFIG_DATA = JSON.parse(rawStr);
+            document.getElementById("rawJsonParseValidationErrorAlert").classList.add("d-none");
+        } catch(e) {
+            document.getElementById("rawJsonParseValidationErrorAlert").classList.remove("d-none");
+            return alert("Parsing failed. Please verify syntax structure formatting patterns match parameters.");
+        }
+    }
+
+    fetch(`/admin/api/config/${ACTIVE_APP_NAME}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(WORKING_CONFIG_DATA)
+    })
+    .then(res => res.json())
+    .then(payload => {
+        if (payload.status === "success") {
+            alert(`Changes saved successfully for app directory '${ACTIVE_APP_NAME}'!`);
+            loadTargetApplicationJsonSchema(ACTIVE_APP_NAME);
+        } else {
+            alert(`Error: ${payload.message}`);
+        }
+    })
+    .catch(err => alert(`Network failure committing config change blocks: ${err}`));
+}
+</script>
+{% endblock %}

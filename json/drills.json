@@ -412,5 +412,59 @@
         "description": "1-2-3B base; RL Leg; L Liver; L head",
         "url": "https://youtu.be/bxaT9rXYBlw?is=dhx7vOod9kYBp-X2",
         "is_video": false
+    },
+    {
+        "id": "783878e9-0c11-4b7c-8e11-28a907de18ac",
+        "category": "Favorites",
+        "subcategory": "Exercise",
+        "title": "Training Endurance Blueprint",
+        "description": "Workout program planning. Explains types of training and schedules to improve endurance",
+        "url": "https://youtu.be/aIWxHp-LxMo?is=8BT-yjxQpFI6UWUN",
+        "is_video": false
+    },
+    {
+        "id": "d2eee836-54e5-446e-86a0-646ee4a21dd7",
+        "category": "Favorites",
+        "subcategory": "Exercise",
+        "title": "Strength and conditioning",
+        "description": "Endurance strength and conditioning",
+        "url": "https://youtu.be/2EK-iMWTfWc?is=D6DZA89-j4K9HTgT",
+        "is_video": false
+    },
+    {
+        "id": "ebc193a1-8af7-4a09-a83e-9b96753daa2f",
+        "category": "Wrestling",
+        "subcategory": "Takedown",
+        "title": "Collar tie to pass by",
+        "description": "Collar tie push forward step foot to foot elbow over pass",
+        "url": "https://www.instagram.com/reel/DaaXniROecP/?igsh=MWg4b3htbHZ4b3g2NA==",
+        "is_video": false
+    },
+    {
+        "id": "2e908830-0ce6-4ab7-8a5a-cd870e5c20f7",
+        "category": "Workout",
+        "subcategory": "Endurance",
+        "title": "Endurance workout",
+        "description": "3 rounds max intensity",
+        "url": "https://www.instagram.com/reel/DZxetTOAoP5/?igsh=aTFxbmM1MGQxMHU5",
+        "is_video": false
+    },
+    {
+        "id": "faed4f78-0f47-4538-a359-0f51d92f3160",
+        "category": "Favorites",
+        "subcategory": "Combos",
+        "title": "Two phase attacks",
+        "description": "Two phase combos",
+        "url": "https://www.instagram.com/reel/DaejDTTx95h/?igsh=MTBnZG5uOHUxaG5pcg==",
+        "is_video": false
+    },
+    {
+        "id": "8500ba88-114d-4c25-a01f-bcd75e13a286",
+        "category": "Favorites",
+        "subcategory": "Workout",
+        "title": "Power Workout Protocol",
+        "description": "15 minute power training",
+        "url": "https://youtu.be/BT0dQKvaznc?is=9O2lcU-aXZMR96br",
+        "is_video": false
     }
 ]

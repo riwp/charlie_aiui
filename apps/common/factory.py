@@ -16,49 +16,69 @@ from apps.common.notes import handle_generic_note
 def create_app_blueprint(app_name, default_module_key='items'):
     """
     Dynamically generates a functional Flask Blueprint based on a configuration key.
+    Ensures complete, standard routing options are fully visible to the Flask compiler.
     """
     blueprint_id = f"{app_name}_app"
     blueprint = Blueprint(blueprint_id, __name__, url_prefix=f"/{app_name}")
+    
+    print(f"🛠️  [Factory] Constructing route layout tree for app: '{app_name}'")
 
     @blueprint.context_processor
     def inject_context():
-        cfg = load_app_json_config(app_name)
-        raw_nav_links = cfg.get("NAV_LINKS", [])
-        
-        dynamic_nav_links = []
-        for link in raw_nav_links:
-            raw_url = link.get("url", "").lstrip('/')
-            dynamic_nav_links.append({
-                "name": link.get("name"),
-                "url": f"/{app_name}/{raw_url}"
-            })
+        try:
+            cfg = load_app_json_config(app_name) or {}
+            raw_nav_links = cfg.get("NAV_LINKS", [])
+            
+            dynamic_nav_links = []
+            for link in raw_nav_links:
+                raw_url = link.get("url", "").lstrip('/')
+                dynamic_nav_links.append({
+                    "name": link.get("name"),
+                    "url": f"/{app_name}/{raw_url}"
+                })
 
-        return dict(nav_links=dynamic_nav_links, app_title=cfg.get("APP_TITLE"))
+            return dict(nav_links=dynamic_nav_links, app_title=cfg.get("APP_TITLE", app_name.capitalize()))
+        except Exception as e:
+            print(f"❌ [Factory Context Error] Failed injecting context for {app_name}: {e}")
+            return dict(nav_links=[], app_title=app_name.capitalize())
 
-    @blueprint.route('/')
+    @blueprint.route('/', methods=['GET'])
     def home():
+        print(f"🏠 [Hit] Base route redirect for app: {app_name} -> targeting {default_module_key}")
         return redirect(url_for(f"{blueprint_id}.generic_list_view", module_key=default_module_key))
 
     @blueprint.route('/page/<module_key>', methods=['GET', 'POST'])
     def generic_list_view(module_key):
-        cfg = load_app_json_config(app_name)
-        conf = cfg.get("MODULE_PAGES", {}).get(module_key)
+        print(f"📄 [Hit] View request layer for App: {app_name} | Module: {module_key} | Method: {request.method}")
+        try:
+            cfg = load_app_json_config(app_name) or {}
+            conf = cfg.get("MODULE_PAGES", {}).get(module_key)
+        except Exception as e:
+            print(f"❌ [Factory Config Error] Reading config failed for {app_name}: {e}")
+            return f"Configuration layout read error: {str(e)}", 500
+
         if not conf: 
-            return redirect('/')
+            print(f"⚠️  [Factory Warning] No configuration profile found for key '{module_key}'. Redirecting to app root.")
+            return redirect(url_for(f"{blueprint_id}.home"))
             
         # --- FIXED FORWARD SAFETY LAYER ---
         # If the page configuration does not point to an internal JSON database backing matrix,
-        # fallback cleanly to rendering a custom template matching the target page key entry name.
+        # fallback cleanly to rendering a custom template layout file matching the module key name on disk.
         if "db_file" not in conf and "data_file" not in conf:
-            # This handles custom templates like admin.html natively while remaining 100% generic
-            return render_template(f"{module_key}.html", conf=conf)
+            # We use the module_key string directly. 
+            # It maps character-for-character to admin_main_config.html or admin_app_config.html
+            template_filename = f"{module_key}.html"
+                
+            print(f"🎨 [Factory Template] Rendering custom layout template: {template_filename}")
+            return render_template(template_filename, conf=conf)
             
         return handle_generic_list(module_key, conf, f"{blueprint_id}.generic_list_view")
+
 
     @blueprint.route('/page/<module_key>/reorder', methods=['POST'], strict_slashes=False)
     @blueprint.route('/page/<module_key>/reorder/', methods=['POST'], strict_slashes=False)
     def reorder_list_items_view(module_key):
-        print(f"💥 HIT DETECTED! Module: {module_key} | App: {app_name}")
+        print(f"💥 HIT DETECTED! Reorder Module: {module_key} | App: {app_name}")
         
         cfg = load_app_json_config(app_name)
         conf = cfg.get("MODULE_PAGES", {}).get(module_key)
@@ -127,7 +147,7 @@ def create_app_blueprint(app_name, default_module_key='items'):
         cfg = load_app_json_config(app_name)
         conf = cfg.get("COLLECTION_PAGES", {}).get(collection_key)
         if not conf: 
-            return redirect('/')
+            return redirect(url_for(f"{blueprint_id}.home"))
         source_conf = cfg.get("MODULE_PAGES", {}).get(conf.get("source_module"))
         return handle_generic_collection(collection_key, conf, source_conf, f"{blueprint_id}.generic_collection_view")
 
@@ -168,7 +188,7 @@ def create_app_blueprint(app_name, default_module_key='items'):
         cfg = load_app_json_config(app_name)
         conf = cfg.get("NOTE_PAGES", {}).get(pagetype.lower())
         if not conf: 
-            return redirect('/')
+            return redirect(url_for(f"{blueprint_id}.home"))
         return handle_generic_note(pagetype, conf, f"{blueprint_id}.manage_notes_view")
 
     return blueprint

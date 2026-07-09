@@ -3,13 +3,11 @@
 {% block content %}
 
 <style>
-    /* Visual helpers for interactive drag states */
-    .draggable-row, .draggable-card {
-        transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-    .drag-over {
+    /* Clean visual feedback for SortableJS items */
+    .sortable-ghost {
+        opacity: 0.4;
         border: 2px dashed #6c757d !important;
-        opacity: 0.6;
+        background-color: #f8f9fa !important;
     }
     .drag-handle {
         cursor: grab;
@@ -35,9 +33,7 @@
     </div>
 </div>
 
-<!-- Main Forms Grid Matrix Layout -->
 <div class="row g-4">
-    <!-- Navigation Links Panel Section -->
     <div class="col-12 col-xl-5">
         <div class="card h-100 shadow-sm border-0">
             <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
@@ -46,13 +42,11 @@
             </div>
             <div class="card-body pt-2">
                 <div id="navLinksContainer" class="d-flex flex-column gap-2">
-                    <!-- Loaded dynamically via JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- Dashboard Cards Management Section -->
     <div class="col-12 col-xl-7">
         <div class="card h-100 shadow-sm border-0">
             <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
@@ -61,14 +55,12 @@
             </div>
             <div class="card-body pt-2">
                 <div id="dashboardCardsContainer" class="row g-3">
-                    <!-- Loaded dynamically via JavaScript -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Dialog Workspace for Adding Items -->
 <div class="modal fade" id="itemManagementModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
@@ -90,10 +82,10 @@
                     <div id="cardSpecificInputs" style="display: none;">
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase mb-1">Application Description</label>
-                            <textarea class="form-control" id="inputDescription" rows="2" placeholder="Brief summary statement..." style="border-radius: 8px;"></textarea>
+                            <textarea class="form-control" id="inputDescription" rows="2" placeholder="Brief summary statement..." style="border-radius: 8px; resize:none;"></textarea>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label small fw-bold text-muted text-uppercase mb-1">Accent Theme Color Colorway</label>
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-1">Accent Theme Colorway</label>
                             <select class="form-select" id="inputColor" style="border-radius: 8px;">
                                 <option value="primary">Primary Blue</option>
                                 <option value="success">Success Green</option>
@@ -111,11 +103,13 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
 <script>
 let globalConfigPayload = { APP_TITLE: "", INDEX_TITLE: "", INDEX_DESCRIPTION: "", NAV_LINKS: [], DASHBOARD_CARDS: [] };
 let itemBootstrapModal = null;
-let dragSourceIndex = null;
-let dragSourceType = null; // 'nav' or 'card'
+let sortableNavInstance = null;
+let sortableCardInstance = null;
 
 document.addEventListener("DOMContentLoaded", function() {
     itemBootstrapModal = new bootstrap.Modal(document.getElementById('itemManagementModal'));
@@ -133,6 +127,7 @@ async function loadCurrentSystemConfig() {
         if (!res.ok) throw new Error("Could not load global data array schema profile targets.");
         globalConfigPayload = await res.json();
         renderLayoutWorkspace();
+        initializeSortableEngines();
     } catch (err) {
         alert("Configuration Load Error: " + err.message);
     }
@@ -144,14 +139,7 @@ function renderLayoutWorkspace() {
     navContainer.innerHTML = "";
     (globalConfigPayload.NAV_LINKS || []).forEach((link, idx) => {
         navContainer.innerHTML += `
-            <div class="card border p-2 bg-light shadow-none draggable-row" 
-                 draggable="true" 
-                 ondragstart="handleDragStart(event, ${idx}, 'nav')"
-                 ondragover="handleDragOver(event)"
-                 ondragenter="handleDragEnter(event)"
-                 ondragleave="handleDragLeave(event)"
-                 ondrop="handleDrop(event, ${idx}, 'nav')"
-                 ondragend="handleDragEnd(event)">
+            <div class="card border p-2 bg-light shadow-none sortable-item" data-index="${idx}">
                 <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                     <div class="drag-handle text-muted px-1 fw-bold fs-5">⋮⋮</div>
                     <div class="flex-grow-1 min-w-0 row g-2">
@@ -168,14 +156,7 @@ function renderLayoutWorkspace() {
     cardsContainer.innerHTML = "";
     (globalConfigPayload.DASHBOARD_CARDS || []).forEach((card, idx) => {
         cardsContainer.innerHTML += `
-            <div class="col-12 col-md-6 draggable-card"
-                 draggable="true"
-                 ondragstart="handleDragStart(event, ${idx}, 'card')"
-                 ondragover="handleDragOver(event)"
-                 ondragenter="handleDragEnter(event)"
-                 ondragleave="handleDragLeave(event)"
-                 ondrop="handleDrop(event, ${idx}, 'card')"
-                 ondragend="handleDragEnd(event)">
+            <div class="col-12 col-md-6 sortable-item" data-index="${idx}">
                 <div class="card border border-${card.color || 'dark'} border-start-4 h-100 shadow-none">
                     <div class="card-body p-3 d-flex flex-column justify-content-between">
                         <div>
@@ -207,56 +188,55 @@ function renderLayoutWorkspace() {
     });
 }
 
-// --- DRAG AND DROP HANDLERS ENGINE ---
-function handleDragStart(e, idx, type) {
-    dragSourceIndex = idx;
-    dragSourceType = type;
-    e.dataTransfer.effectAllowed = 'move';
-    e.target.style.opacity = '0.4';
-}
+function initializeSortableEngines() {
+    const navContainer = document.getElementById("navLinksContainer");
+    const cardsContainer = document.getElementById("dashboardCardsContainer");
 
-function handleDragOver(e) {
-    if (e.preventDefault) e.preventDefault();
-    return false;
-}
+    // Clear previous instances if refreshing data view map layout structures
+    if (sortableNavInstance) sortableNavInstance.destroy();
+    if (sortableCardInstance) sortableCardInstance.destroy();
 
-function handleDragEnter(e) {
-    const targetElement = e.target.closest('.draggable-row, .draggable-card');
-    if (targetElement) targetElement.classList.add('drag-over');
-}
-
-function handleDragLeave(e) {
-    const targetElement = e.target.closest('.draggable-row, .draggable-card');
-    if (targetElement) targetElement.classList.remove('drag-over');
-}
-
-function handleDrop(e, targetIdx, targetType) {
-    if (e.stopPropagation) e.stopPropagation();
-    
-    // Safety block: prevent sorting mixtures between nav links and dashboard cards
-    if (dragSourceType !== targetType || dragSourceIndex === targetIdx) return;
-
-    const arrayTarget = targetType === 'nav' ? globalConfigPayload.NAV_LINKS : globalConfigPayload.DASHBOARD_CARDS;
-    
-    // Splice array object and insert into new index position layout matrix
-    const [movedItem] = arrayTarget.splice(dragSourceIndex, 1);
-    arrayTarget.splice(targetIdx, 0, movedItem);
-
-    renderLayoutWorkspace();
-}
-
-function handleDragEnd(e) {
-    e.target.style.opacity = '1';
-    document.querySelectorAll('.draggable-row, .draggable-card').forEach(el => {
-        el.classList.remove('drag-over');
+    sortableNavInstance = new Sortable(navContainer, {
+        handle: '.drag-handle',
+        animation: 180,
+        ghostClass: 'sortable-ghost',
+        onEnd: function() { syncArraySortingSequence('nav', navContainer); }
     });
+
+    sortableCardInstance = new Sortable(cardsContainer, {
+        handle: '.drag-handle',
+        animation: 180,
+        ghostClass: 'sortable-ghost',
+        onEnd: function() { syncArraySortingSequence('card', cardsContainer); }
+    });
+}
+
+function syncArraySortingSequence(type, containerElement) {
+    const items = containerElement.querySelectorAll('.sortable-item');
+    const targetArray = type === 'nav' ? globalConfigPayload.NAV_LINKS : globalConfigPayload.DASHBOARD_CARDS;
+    
+    // Create new sorted list sequence array based on real DOM arrangements
+    const reorderedArray = Array.from(items).map(item => {
+        const originalIndex = parseInt(item.getAttribute('data-index'), 10);
+        return targetArray[originalIndex];
+    });
+
+    if (type === 'nav') {
+        globalConfigPayload.NAV_LINKS = reorderedArray;
+    } else {
+        globalConfigPayload.DASHBOARD_CARDS = reorderedArray;
+    }
+
+    // Refresh data-index properties dynamically without causing total document element re-render
+    renderLayoutWorkspace();
+    initializeSortableEngines();
 }
 
 function updateNavLinkData(idx, prop, val) { globalConfigPayload.NAV_LINKS[idx][prop] = val; }
 function updateDashboardCardData(idx, prop, val) { globalConfigPayload.DASHBOARD_CARDS[idx][prop] = val; }
 
-function removeNavLinkNode(idx) { globalConfigPayload.NAV_LINKS.splice(idx, 1); renderLayoutWorkspace(); }
-function removeDashboardCardNode(idx) { globalConfigPayload.DASHBOARD_CARDS.splice(idx, 1); renderLayoutWorkspace(); }
+function removeNavLinkNode(idx) { globalConfigPayload.NAV_LINKS.splice(idx, 1); renderLayoutWorkspace(); initializeSortableEngines(); }
+function removeDashboardCardNode(idx) { globalConfigPayload.DASHBOARD_CARDS.splice(idx, 1); renderLayoutWorkspace(); initializeSortableEngines(); }
 
 function openAddNavModal() {
     document.getElementById("modalTitleDisplay").innerText = "➕ Create New Navigation Link";
@@ -293,6 +273,7 @@ function appendFormPayloadData() {
     }
     itemBootstrapModal.hide();
     renderLayoutWorkspace();
+    initializeSortableEngines();
 }
 
 async function saveGlobalConfig() {

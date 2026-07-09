@@ -1,12 +1,18 @@
 {
     "APP_TITLE": "Admin Home",
     "NAV_LINKS": [
-        {"name": "Admin", "url": ""}
+        {"name": "Main Config", "url": "page/admin_main_config"},
+        {"name": "App Config", "url": "page/admin_app_config"}
     ],
     "MODULE_PAGES": {
-        "admin": {
-            "title": "Admin",
-            "description": "Administer applications.",
+        "admin_main_config": {
+            "title": "Main Config",
+            "description": "Update Main Config.",
+            "accent_color": "dark"
+        },
+        "admin_app_config": {
+            "title": "App Config",
+            "description": "Update App Config.",
             "accent_color": "dark"
         }
     }

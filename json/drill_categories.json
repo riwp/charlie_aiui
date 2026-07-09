@@ -94,5 +94,21 @@
     {
         "category": "Favorites",
         "subcategory": "Combos"
+    },
+    {
+        "category": "Favorites",
+        "subcategory": "Exercise"
+    },
+    {
+        "category": "Wrestling",
+        "subcategory": "Takedown"
+    },
+    {
+        "category": "Workout",
+        "subcategory": "Endurance"
+    },
+    {
+        "category": "Favorites",
+        "subcategory": "Workout"
     }
 ]
