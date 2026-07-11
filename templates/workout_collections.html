@@ -32,6 +32,7 @@
             {% for item in collection[section_name] %}
                 {% set _ = bug_buffer.append(item.title | lower) %}
                 {% set _ = bug_buffer.append(item.category | lower) %}
+                {% set _ = bug_buffer.append((item.description or item.notes or item.desc or '') | lower) %}
             {% endfor %}
         {% endif %}
     {% endfor %}
@@ -40,7 +41,15 @@
         <div class="card border-0 border-start border-4 border-{{ conf.accent_color or 'primary' }} p-3 shadow-sm bg-white position-relative dashboard-card">
             
             <div class="position-absolute top-0 end-0 mt-3 me-3 d-flex gap-2 align-items-center" style="z-index: 10;">
-                <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" style="width: 32px; height: 32px;" type="button" data-bs-toggle="collapse" data-bs-target="#collectionItemsContainer-{{ collection.id }}" aria-expanded="false" title="Toggle Content View">
+                
+                <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm workout-drag-handle" 
+                        style="width: 32px; height: 32px; cursor: move; touch-action: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                        <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                </button>
+
+                <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 shadow-sm" style="width: 32px; height: 32px;" type="button" data-bs-toggle="collapse" data-bs-target="#collectionItemsContainer-{{ collection.id }}" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="text-muted collapse-indicator-chevron" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
                     </svg>
@@ -80,24 +89,37 @@
                                 <div class="flex-grow-1 border-bottom border-light"></div>
                             </div>
                             
-                            <div class="row g-3">
+                            <div class="row g-3 exercises-grid-container" data-workout-id="{{ collection.id }}" data-pillar="{{ pillar }}">
                                 {% if collection[pillar] is iterable and collection[pillar] is not string %}
                                     {% for item in collection[pillar] %}
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 sortable-exercise-wrapper" data-exercise-id="{{ item.id }}">
                                         <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between position-relative inner-item-card">
-                                            <div>
-                                                <span class="badge bg-secondary text-capitalize mb-2" style="font-size: 0.65rem;">{{ item.category }}</span>
-                                                <h6 class="fw-bold m-0 mb-1 text-dark text-truncate pe-3" title="{{ item.title }}">{{ item.title }}</h6>
+                                            <div class="pe-4">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <span class="badge bg-secondary text-capitalize" style="font-size: 0.65rem;">{{ item.category }}</span>
+                                                </div>
+                                                <h6 class="fw-bold m-0 mb-1 text-dark" title="{{ item.title }}">{{ item.title }}</h6>
+                                                
+                                                <p class="text-muted small m-0 mt-2 text-wrap lh-sm" style="font-size: 0.8rem;">
+                                                    {{ item.description or item.notes or item.desc or 'No performance notes recorded.' }}
+                                                </p>
                                             </div>
+
+                                            <button class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center p-0 position-absolute top-0 end-0 mt-2 me-2 exercise-drag-handle" 
+                                                    style="width: 26px; height: 26px; cursor: move; touch-action: none; z-index: 20;" type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                                                    <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM7 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm-3 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                     {% else %}
-                                    <div class="col-12">
+                                    <div class="col-12 non-sortable-fallback">
                                         <p class="text-muted small m-0 fst-italic ps-2">No exercises assigned to this target block phase.</p>
                                     </div>
                                     {% endfor %}
                                 {% else %}
-                                <div class="col-12">
+                                <div class="col-12 non-sortable-fallback">
                                     <p class="text-muted small m-0 fst-italic ps-2">No exercises assigned to this target block phase.</p>
                                 </div>
                                 {% endif %}
@@ -263,6 +285,9 @@
     #pageCollectionsSearch:focus { border-color: #dee2e6 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; outline: 0; }
     .collapse-indicator-chevron { transform: rotate(-90deg); transition: transform 0.2s ease-in-out; }
     .custom-persist-collapse.show ~ div .collapse-indicator-chevron, [aria-expanded="true"] .collapse-indicator-chevron { transform: rotate(0deg) !important; }
+    
+    /* Touch / Reorder Drag styling rules */
+    .filterable-collection-row.is-dragging, .sortable-exercise-wrapper.is-dragging { opacity: 0.4 !important; border: 2px dashed #999 !important; }
 </style>
 
 <script>
@@ -301,8 +326,161 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        const storagePrefix = `collapse_state_workout_tri_`;
+        // --- 1. UNIFIED TOUCH & MOUSE EVENT DRAG LOGIC FOR TOP-LEVEL WORKOUTS ---
+        const workoutsGrid = document.getElementById('collectionsGrid');
+        let activeWorkoutNode = null;
 
+        workoutsGrid.addEventListener('mousedown', function(e) {
+            const handle = e.target.closest('.workout-drag-handle');
+            if (!handle) return;
+            activeWorkoutNode = handle.closest('.filterable-collection-row');
+            activeWorkoutNode.classList.add('is-dragging');
+        });
+
+        workoutsGrid.addEventListener('touchstart', function(e) {
+            const handle = e.target.closest('.workout-drag-handle');
+            if (!handle) return;
+            activeWorkoutNode = handle.closest('.filterable-collection-row');
+            activeWorkoutNode.classList.add('is-dragging');
+        }, { passive: true });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!activeWorkoutNode || activeWorkoutNode.closest('.sortable-exercise-wrapper')) return;
+            e.preventDefault();
+            const targetRow = e.target.closest('.filterable-collection-row');
+            if (targetRow && targetRow !== activeWorkoutNode) {
+                const box = targetRow.getBoundingClientRect();
+                if ((e.clientY - box.top) > box.height / 2) {
+                    targetRow.after(activeWorkoutNode);
+                } else {
+                    targetRow.before(activeWorkoutNode);
+                }
+            }
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!activeWorkoutNode || activeWorkoutNode.closest('.sortable-exercise-wrapper')) return;
+            const touch = e.touches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (!targetEl) return;
+            
+            const targetRow = targetEl.closest('.filterable-collection-row');
+            if (targetRow && targetRow !== activeWorkoutNode) {
+                const box = targetRow.getBoundingClientRect();
+                if ((touch.clientY - box.top) > box.height / 2) {
+                    targetRow.after(activeWorkoutNode);
+                } else {
+                    targetRow.before(activeWorkoutNode);
+                }
+            }
+        }, { passive: false });
+
+        function endWorkoutDrag() {
+            if (activeWorkoutNode) {
+                activeWorkoutNode.classList.remove('is-dragging');
+                activeWorkoutNode = null;
+                saveUpdatedWorkoutOrder();
+            }
+        }
+        document.addEventListener('mouseup', endWorkoutDrag);
+        document.addEventListener('touchend', endWorkoutDrag);
+
+        function saveUpdatedWorkoutOrder() {
+            const orderedIds = Array.from(document.querySelectorAll('.filterable-collection-row')).map(row => row.getAttribute('data-id')).filter(id => id);
+            const moduleAppName = "{{ request.blueprint }}".replace('_app', '');
+            fetch(`/${moduleAppName}/reorder-structured-workouts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ordered_ids: orderedIds })
+            });
+        }
+
+
+        // --- 2. UNIFIED TOUCH & MOUSE EVENT DRAG LOGIC FOR NESTED EXERCISES ---
+        let activeExerciseNode = null;
+
+        workoutsGrid.addEventListener('mousedown', function(e) {
+            const handle = e.target.closest('.exercise-drag-handle');
+            if (!handle) return;
+            activeExerciseNode = handle.closest('.sortable-exercise-wrapper');
+            activeExerciseNode.classList.add('is-dragging');
+        });
+
+        workoutsGrid.addEventListener('touchstart', function(e) {
+            const handle = e.target.closest('.exercise-drag-handle');
+            if (!handle) return;
+            activeExerciseNode = handle.closest('.sortable-exercise-wrapper');
+            activeExerciseNode.classList.add('is-dragging');
+        }, { passive: true });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!activeExerciseNode) return;
+            e.preventDefault();
+            const targetCard = e.target.closest('.sortable-exercise-wrapper');
+            const targetContainer = e.target.closest('.exercises-grid-container');
+            
+            if (targetContainer && activeExerciseNode.closest('.exercises-grid-container') === targetContainer) {
+                if (targetCard && targetCard !== activeExerciseNode) {
+                    const box = targetCard.getBoundingClientRect();
+                    if ((e.clientX - box.left) > box.width / 2) {
+                        targetCard.after(activeExerciseNode);
+                    } else {
+                        targetCard.before(activeExerciseNode);
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!activeExerciseNode) return;
+            const touch = e.touches[0];
+            const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (!targetEl) return;
+            
+            const targetCard = targetEl.closest('.sortable-exercise-wrapper');
+            const targetContainer = targetEl.closest('.exercises-grid-container');
+            
+            if (targetContainer && activeExerciseNode.closest('.exercises-grid-container') === targetContainer) {
+                if (targetCard && targetCard !== activeExerciseNode) {
+                    const box = targetCard.getBoundingClientRect();
+                    if ((touch.clientX - box.left) > box.width / 2) {
+                        targetCard.after(activeExerciseNode);
+                    } else {
+                        targetCard.before(activeExerciseNode);
+                    }
+                }
+            }
+        }, { passive: false });
+
+        function endExerciseDrag() {
+            if (activeExerciseNode) {
+                const parentContainer = activeExerciseNode.closest('.exercises-grid-container');
+                activeExerciseNode.classList.remove('is-dragging');
+                activeExerciseNode = null;
+                if (parentContainer) {
+                    saveUpdatedExerciseOrder(parentContainer);
+                }
+            }
+        }
+        document.addEventListener('mouseup', endExerciseDrag);
+        document.addEventListener('touchend', endExerciseDrag);
+
+        function saveUpdatedExerciseOrder(containerElement) {
+            const workoutId = containerElement.getAttribute('data-workout-id');
+            const pillar = containerElement.getAttribute('data-pillar');
+            const orderedExerciseIds = Array.from(containerElement.querySelectorAll('.sortable-exercise-wrapper')).map(el => el.getAttribute('data-exercise-id')).filter(id => id);
+            const moduleAppName = "{{ request.blueprint }}".replace('_app', '');
+            
+            fetch(`/${moduleAppName}/reorder-workout-exercises`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ workout_id: workoutId, pillar: pillar, ordered_exercise_ids: orderedExerciseIds })
+            });
+        }
+
+
+        // --- 3. PERSISTED COLLAPSE STATUS SHUTTLE ---
+        const storagePrefix = `collapse_state_workout_tri_`;
         document.querySelectorAll('.custom-persist-collapse').forEach(el => {
             const id = el.getAttribute('id');
             const savedState = localStorage.getItem(storagePrefix + id);
