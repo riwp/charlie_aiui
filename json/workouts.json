@@ -1,29 +1,18 @@
 [
     {
-        "id": "21bc7429-7a83-4377-a609-82c9a602b6a2",
-        "name": "Workout Current Drills",
-        "description": "1) Boxing nodes 2) Striking Flow Drill 3) Boxing Combos",
-        "drills": [
-            "68bfa67e-aa18-4f79-bd9b-d0e021174e9d",
-            "769da891-95c5-43ea-831e-450f3cd820bd",
-            "7b09c2ef-ffc3-4d2b-a8cf-8924bce6e7bd",
-            "9bca8cb2-2c6f-45fa-bb1b-ebca1bfd0d7e",
-            "fba7bc25-cc7b-4bb8-bf8c-3ca7bfdaea7c",
-            "0df8cb23-beea-44d5-89bd-bfde39a0fa0b",
-            "e98cbcfb-8ea2-45bc-8a7e-ca87cfdb0da4",
-            "8bbce2c0-85f7-41b9-8e62-dfccb6d8995a",
-            "04e0ad11-df00-4dc5-9a39-0ced3744d1c1",
-            "edb0a61e-92ad-4d43-982d-5873cef3a6fa"
+        "id": "f7fd569f-cc9d-469d-af14-90cd939a675c",
+        "name": "test workout",
+        "description": "this is a test",
+        "strength": [
+            "76495cb2-6f29-41e9-913a-a1b7ad78ff0d",
+            "e30f14fa-74f4-44bf-bc49-6f5dfd5a9dbd"
         ],
-        "is_video": false
-    },
-    {
-        "id": "08722eb8-4347-4fd3-a0ce-7e8cbaca4cbe",
-        "name": "Fundamentals",
-        "description": "Grouping fundamental drills",
-        "drills": [
-            "e44d320b-0487-4b72-a745-f938f323b6b1"
+        "power": [
+            "b3f03b54-1fe5-4cd9-ae52-2da16bc8d179",
+            "9d903e1c-529a-41bb-9464-9a997ef8b724"
         ],
-        "is_video": false
+        "speed": [
+            "847b2c58-9be9-4503-b09e-73cbdf0169df"
+        ]
     }
 ]

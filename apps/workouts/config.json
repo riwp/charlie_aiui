@@ -1,30 +1,28 @@
 {
     "APP_TITLE": "Workouts Home",
-    "INDEX_DESCRIPTION": "Select a module below to track instructions and bundle meals.",
+    "INDEX_DESCRIPTION": "Select a module below to track your workouts.",
     "NAV_LINKS": [
-        {"name": "Workouts", "url": "/page/workouts"},
-        {"name": "Workout Routines", "url": "/collection/workoutroutines"}
+        {"name": "Exercises", "url": "/page/exercises"},
+        {"name": "Manage Workouts", "url": "/collection/workouts"}
     ],
     "MODULE_PAGES": {
-        "dance": {
-            "title": "Workouts",
-            "description": "Add your favorite workouts, search and more.",
-            "db_file": "workouts.json",
-            "categories_file": "workouts_categories.json",
+        "exercises": {
+            "title": "Exercises",
+            "description": "Add your favorite exercises, search and more.",
+            "db_file": "exercises.json",
+            "categories_file": "exercises_categories.json",
             "accent_color": "success",
-            "form_button_text": "Add New Workout",
-            "save_button_text": "Save Workout"
+            "form_button_text": "Add New Exercise",
+            "save_button_text": "Save Exercise"
         }
     },
     "COLLECTION_PAGES": {
-        "workoutroutines": {
-            "title": "Manage Workout Routines",
-            "description": "Put together collection of workouts into workout routines.",
-            "db_file": "workoutroutines.json",
-            "source_module": "workouts",
-            "accent_color": "success",
-            "form_button_text": "Build Workout Routines",
-            "save_button_text": "Save Workout Routine"
+        "workouts": {
+            "title": "Workouts",
+            "description": "Design custom training matrices segmented into explicit structural pillars (Strength, Power, Speed).",
+            "db_file": "workouts.json",
+            "source_module": "exercises",
+            "accent_color": "primary"
         }
     }
 }

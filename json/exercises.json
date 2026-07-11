@@ -1,0 +1,92 @@
+[
+  {
+    "id": "76495cb2-6f29-41e9-913a-a1b7ad78ff0d",
+    "category": "Strength",
+    "subcategory": "Squat",
+    "title": "Barbell Back Squat",
+    "description": "Drive hips back and down past parallel, keeping a proud chest and driving through the mid-foot.",
+    "url": "https://www.youtube.com/watch?v=ultWZbUMsg8",
+    "is_video": false
+  },
+  {
+    "id": "e30f14fa-74f4-44bf-bc49-6f5dfd5a9dbd",
+    "category": "Strength",
+    "subcategory": "Hinge",
+    "title": "Romanian Deadlift (RDL)",
+    "description": "Push hips straight back with a slight knee bend, stretching the hamstrings while keeping a neutral spine.",
+    "url": "https://www.youtube.com/watch?v=JCXUYuzwFtM",
+    "is_video": false
+  },
+  {
+    "id": "2da19f2f-bc3a-449e-b1cf-7df74cf61719",
+    "category": "Strength",
+    "subcategory": "Press",
+    "title": "Overhead Barbell Press",
+    "description": "Press the barbell straight up overhead, locking the core out and finishing with the head pushed through at the top.",
+    "url": "https://www.youtube.com/watch?v=2yjwHeFTo20",
+    "is_video": false
+  },
+  {
+    "id": "c1f7bd8a-9f5b-4395-9b24-025aefbc8145",
+    "category": "Strength",
+    "subcategory": "Pull",
+    "title": "Weighted Pull-Up",
+    "description": "Pull from a dead hang position until your chin clearly clears the bar without using excessive body english.",
+    "url": "http://www.google.com",
+    "is_video": false
+  },
+  {
+    "id": "6bb96403-d68a-4db5-9bf8-928efcfc6a0c",
+    "category": "Power",
+    "subcategory": "Olympic",
+    "title": "Hang Power Clean",
+    "description": "Execute a violent triple extension at the hips, knees, and ankles, aggressively catching the bar across the front rack position.",
+    "url": "https://www.youtube.com/watch?v=EKvS6O0X9S4",
+    "is_video": false
+  },
+  {
+    "id": "b3f03b54-1fe5-4cd9-ae52-2da16bc8d179",
+    "category": "Power",
+    "subcategory": "Plyo Lower",
+    "title": "Continuous Depth Jumps",
+    "description": "Step off a plyometric box and instantly explode vertically off the floor, minimizing ground contact time.",
+    "url": "http://www.google.com",
+    "is_video": false
+  },
+  {
+    "id": "9d903e1c-529a-41bb-9464-9a997ef8b724",
+    "category": "Power",
+    "subcategory": "Plyo Upper",
+    "title": "Rotational Medicine Ball Slam",
+    "description": "Pivot sharply and throw a non-bouncing medicine ball forcefully down into the floor outside your front foot.",
+    "url": "http://www.google.com",
+    "is_video": false
+  },
+  {
+    "id": "847b2c58-9be9-4503-b09e-73cbdf0169df",
+    "category": "Speed",
+    "subcategory": "Acceleration",
+    "title": "Sled Push (Heavy)",
+    "description": "Maintain a strict 45-degree forward lean and punch knees dynamically forward, driving your feet into the turf.",
+    "url": "http://www.google.com",
+    "is_video": false
+  },
+  {
+    "id": "31d27ef6-81cf-4148-af5d-166e4a2c0bc1",
+    "category": "Speed",
+    "subcategory": "Max Velocity",
+    "title": "Flying 30-Meter Sprints",
+    "description": "Smoothly build up speed for 20 meters, target absolute maximal velocity for 30 meters, and decelerate safely.",
+    "url": "http://www.google.com",
+    "is_video": false
+  },
+  {
+    "id": "d04a6ee1-ee7c-48be-9b16-f38b00a296cb",
+    "category": "Speed",
+    "subcategory": "Agility COD",
+    "title": "Pro Agility Shuttle (5-10-5)",
+    "description": "Sprint 5 yards to the right, drop your hips to plant and change direction, sprint 10 yards left, plant, and sprint 5 yards through.",
+    "url": "http://www.google.com",
+    "is_video": false
+  }
+]

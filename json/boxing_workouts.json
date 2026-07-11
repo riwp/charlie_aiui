@@ -1,0 +1,12 @@
+[
+    {
+        "id": "8839c06d-0d37-49c0-8da7-720575fad1b1",
+        "name": "test",
+        "description": "test",
+        "drills": [
+            "e44d320b-0487-4b72-a745-f938f323b6b1",
+            "f51b9e1e-28f0-40e1-bbfa-3430a656894c"
+        ],
+        "is_video": false
+    }
+]

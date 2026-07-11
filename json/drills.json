@@ -466,5 +466,41 @@
         "description": "15 minute power training",
         "url": "https://youtu.be/BT0dQKvaznc?is=9O2lcU-aXZMR96br",
         "is_video": false
+    },
+    {
+        "id": "d9e7d6e8-f856-4662-99ed-21bfbeb93d29",
+        "category": "Favorites",
+        "subcategory": "Workout",
+        "title": "How to structure workouts",
+        "description": "Muay Thai workouts how to structure",
+        "url": "https://youtu.be/yrF8y5CCjzo?is=O-gK_VL0v0nChnqo",
+        "is_video": false
+    },
+    {
+        "id": "79fee372-514d-440b-a7a3-84fd9c7686a7",
+        "category": "Favorites",
+        "subcategory": "Workout",
+        "title": "Grapplers circuit",
+        "description": "Randy contour grapplers circuit",
+        "url": "https://youtu.be/u_yVOJXv4EY?is=UxSQsNWRU7RstxsS",
+        "is_video": false
+    },
+    {
+        "id": "08925522-45b4-45f7-b492-131221e5a1f5",
+        "category": "Favorites",
+        "subcategory": "Workout",
+        "title": "Workout schedules",
+        "description": "Workout schedule construction",
+        "url": "https://youtu.be/7vJOKW5OA6Q?is=yfMHkyhiQ2fLeDb3",
+        "is_video": false
+    },
+    {
+        "id": "f3a55a57-2e48-4272-b1cc-827c9f7a3c38",
+        "category": "Favorites",
+        "subcategory": "Workout",
+        "title": "Workout annual plan",
+        "description": "Training periodization annual plan",
+        "url": "https://youtu.be/jXc1VwX0zWo?is=6-IFiY2PwMDgk-GN",
+        "is_video": false
     }
 ]
